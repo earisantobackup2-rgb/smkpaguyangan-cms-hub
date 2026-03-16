@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
 import { Trophy } from "lucide-react";
@@ -25,18 +26,18 @@ export default function PrestasiPage() {
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {achievements.map((item) => (
-              <div key={item.id} className="rounded-xl bg-card shadow-card p-1">
+              <Link to={`/prestasi/${item.id}`} key={item.id} className="group rounded-xl bg-card shadow-card p-1 hover:shadow-elevated transition-shadow">
                 {item.image_url && (
                   <div className="aspect-video rounded-lg overflow-hidden">
-                    <img src={item.image_url} alt={item.title} className="w-full h-full object-cover" />
+                    <img src={item.image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                   </div>
                 )}
                 <div className="p-4">
                   {item.category && <span className="text-xs font-bold uppercase tracking-widest text-accent">{item.category}</span>}
-                  <h3 className="mt-1 text-lg font-semibold text-foreground">{item.title}</h3>
-                  {item.description && <p className="mt-2 text-sm text-muted-foreground">{item.description}</p>}
+                  <h3 className="mt-1 text-lg font-semibold text-foreground group-hover:text-primary transition-colors">{item.title}</h3>
+                  {item.description && <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{item.description}</p>}
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}

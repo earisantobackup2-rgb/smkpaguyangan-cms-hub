@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Trophy } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
@@ -25,39 +26,40 @@ export default function AchievementsSection({ achievements }: Props) {
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {achievements.slice(0, 6).map((item, i) => (
-            <motion.div
-              key={item.id}
-              whileHover={{ y: -4 }}
-              transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-              className="group relative overflow-hidden rounded-xl bg-card p-1 shadow-card"
-            >
-              {item.image_url && (
-                <div className="aspect-video rounded-lg overflow-hidden mb-3">
-                  <img src={item.image_url} alt={item.title} className="w-full h-full object-cover" />
+            <Link to={`/prestasi/${item.id}`} key={item.id}>
+              <motion.div
+                whileHover={{ y: -4 }}
+                transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+                className="group relative overflow-hidden rounded-xl bg-card p-1 shadow-card"
+              >
+                {item.image_url && (
+                  <div className="aspect-video rounded-lg overflow-hidden mb-3">
+                    <img src={item.image_url} alt={item.title} className="w-full h-full object-cover" />
+                  </div>
+                )}
+                <div className="rounded-lg p-4">
+                  {item.category && (
+                    <span className="text-xs font-bold uppercase tracking-widest text-accent">
+                      {item.category}
+                    </span>
+                  )}
+                  <h3 className="mt-1 text-lg font-semibold leading-tight text-foreground group-hover:text-primary transition-colors">
+                    {item.title}
+                  </h3>
+                  {item.description && (
+                    <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{item.description}</p>
+                  )}
+                  {item.achievement_date && (
+                    <p className="mt-3 text-xs text-muted-foreground">
+                      {new Date(item.achievement_date).toLocaleDateString("id-ID", {
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </p>
+                  )}
                 </div>
-              )}
-              <div className="rounded-lg p-4">
-                {item.category && (
-                  <span className="text-xs font-bold uppercase tracking-widest text-accent">
-                    {item.category}
-                  </span>
-                )}
-                <h3 className="mt-1 text-lg font-semibold leading-tight text-foreground group-hover:text-primary transition-colors">
-                  {item.title}
-                </h3>
-                {item.description && (
-                  <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{item.description}</p>
-                )}
-                {item.achievement_date && (
-                  <p className="mt-3 text-xs text-muted-foreground">
-                    {new Date(item.achievement_date).toLocaleDateString("id-ID", {
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </p>
-                )}
-              </div>
-            </motion.div>
+              </motion.div>
+            </Link>
           ))}
         </div>
       </div>

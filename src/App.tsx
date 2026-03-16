@@ -9,6 +9,7 @@ import PrestasiPage from "./pages/PrestasiPage.tsx";
 import ProfilPage from "./pages/ProfilPage.tsx";
 import KontakPage from "./pages/KontakPage.tsx";
 import BeritaDetailPage from "./pages/BeritaDetailPage.tsx";
+import PrestasiDetailPage from "./pages/PrestasiDetailPage.tsx";
 import JurusanPage from "./pages/JurusanPage.tsx";
 import AdminLogin from "./pages/admin/AdminLogin.tsx";
 import AdminLayout from "./pages/admin/AdminLayout.tsx";
@@ -35,6 +36,7 @@ const App = () => (
           <Route path="/berita" element={<BeritaPage />} />
           <Route path="/berita/:id" element={<BeritaDetailPage />} />
           <Route path="/prestasi" element={<PrestasiPage />} />
+          <Route path="/prestasi/:id" element={<PrestasiDetailPage />} />
           <Route path="/profil" element={<ProfilPage />} />
           <Route path="/kontak" element={<KontakPage />} />
           <Route path="/admin/login" element={<AdminLogin />} />
