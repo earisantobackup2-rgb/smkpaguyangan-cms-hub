@@ -20,6 +20,7 @@ import AdminKerjasama from "./pages/admin/AdminKerjasama.tsx";
 import AdminHalaman from "./pages/admin/AdminHalaman.tsx";
 import AdminSekolah from "./pages/admin/AdminSekolah.tsx";
 import AdminJurusan from "./pages/admin/AdminJurusan.tsx";
+import PencarianPage from "./pages/PencarianPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
