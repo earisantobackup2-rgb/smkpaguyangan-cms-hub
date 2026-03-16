@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Newspaper, Trophy, Handshake, FileText, School, LogOut, LayoutDashboard, GraduationCap } from "lucide-react";
+import { Newspaper, Trophy, Handshake, FileText, School, LogOut, LayoutDashboard, GraduationCap, Camera } from "lucide-react";
 
 const sidebarLinks = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
