@@ -40,7 +40,7 @@ export default function BeritaPage() {
                   <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">{item.title}</h3>
                   {item.excerpt && <p className="mt-2 text-sm text-muted-foreground line-clamp-3">{item.excerpt}</p>}
                 </div>
-              </article>
+              </Link>
             ))}
           </div>
         )}

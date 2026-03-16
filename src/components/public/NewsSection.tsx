@@ -68,6 +68,7 @@ export default function NewsSection({ news }: Props) {
                 )}
               </div>
             </motion.article>
+            </Link>
           ))}
         </div>
 
