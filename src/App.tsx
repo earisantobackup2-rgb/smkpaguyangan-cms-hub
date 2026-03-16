@@ -9,6 +9,7 @@ import PrestasiPage from "./pages/PrestasiPage.tsx";
 import ProfilPage from "./pages/ProfilPage.tsx";
 import KontakPage from "./pages/KontakPage.tsx";
 import BeritaDetailPage from "./pages/BeritaDetailPage.tsx";
+import JurusanPage from "./pages/JurusanPage.tsx";
 import AdminLogin from "./pages/admin/AdminLogin.tsx";
 import AdminLayout from "./pages/admin/AdminLayout.tsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.tsx";
@@ -17,6 +18,7 @@ import AdminPrestasi from "./pages/admin/AdminPrestasi.tsx";
 import AdminKerjasama from "./pages/admin/AdminKerjasama.tsx";
 import AdminHalaman from "./pages/admin/AdminHalaman.tsx";
 import AdminSekolah from "./pages/admin/AdminSekolah.tsx";
+import AdminJurusan from "./pages/admin/AdminJurusan.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -29,6 +31,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/jurusan" element={<JurusanPage />} />
           <Route path="/berita" element={<BeritaPage />} />
           <Route path="/berita/:id" element={<BeritaDetailPage />} />
           <Route path="/prestasi" element={<PrestasiPage />} />
@@ -37,6 +40,7 @@ const App = () => (
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
+            <Route path="jurusan" element={<AdminJurusan />} />
             <Route path="berita" element={<AdminBerita />} />
             <Route path="prestasi" element={<AdminPrestasi />} />
             <Route path="kerjasama" element={<AdminKerjasama />} />

@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Newspaper, Trophy, Handshake, FileText, School, LogOut, LayoutDashboard } from "lucide-react";
+import { Newspaper, Trophy, Handshake, FileText, School, LogOut, LayoutDashboard, GraduationCap } from "lucide-react";
 
 const sidebarLinks = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { label: "Jurusan & Keahlian", href: "/admin/jurusan", icon: GraduationCap },
   { label: "Berita & Pengumuman", href: "/admin/berita", icon: Newspaper },
   { label: "Prestasi", href: "/admin/prestasi", icon: Trophy },
   { label: "Kerjasama Industri", href: "/admin/kerjasama", icon: Handshake },

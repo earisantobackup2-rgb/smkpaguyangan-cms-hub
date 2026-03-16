@@ -149,6 +149,48 @@ export type Database = {
         }
         Relationships: []
       }
+      programs: {
+        Row: {
+          career_prospects: string | null
+          created_at: string
+          curriculum: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          is_published: boolean
+          name: string
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          career_prospects?: string | null
+          created_at?: string
+          curriculum?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_published?: boolean
+          name: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          career_prospects?: string | null
+          created_at?: string
+          curriculum?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_published?: boolean
+          name?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       school_info: {
         Row: {
           created_at: string
