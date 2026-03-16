@@ -20,6 +20,7 @@ import AdminKerjasama from "./pages/admin/AdminKerjasama.tsx";
 import AdminHalaman from "./pages/admin/AdminHalaman.tsx";
 import AdminSekolah from "./pages/admin/AdminSekolah.tsx";
 import AdminJurusan from "./pages/admin/AdminJurusan.tsx";
+import PencarianPage from "./pages/PencarianPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -39,6 +40,7 @@ const App = () => (
           <Route path="/prestasi/:id" element={<PrestasiDetailPage />} />
           <Route path="/profil" element={<ProfilPage />} />
           <Route path="/kontak" element={<KontakPage />} />
+          <Route path="/pencarian" element={<PencarianPage />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />

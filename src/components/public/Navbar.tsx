@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Search } from "lucide-react";
 
 const navLinks = [
   { label: "Beranda", href: "/" },
@@ -44,13 +44,18 @@ export default function Navbar() {
           ))}
         </nav>
 
-        <button
-          className="md:hidden p-2"
-          onClick={() => setOpen(!open)}
-          aria-label="Toggle menu"
-        >
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+        <div className="flex items-center gap-1">
+          <Link to="/pencarian" className="p-2 text-muted-foreground hover:text-foreground" aria-label="Pencarian">
+            <Search className="h-5 w-5" />
+          </Link>
+          <button
+            className="md:hidden p-2"
+            onClick={() => setOpen(!open)}
+            aria-label="Toggle menu"
+          >
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
       </div>
 
       {open && (
