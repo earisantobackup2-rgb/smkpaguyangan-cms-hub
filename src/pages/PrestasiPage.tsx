@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
 import { Trophy } from "lucide-react";
