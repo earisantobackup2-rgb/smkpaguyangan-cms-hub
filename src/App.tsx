@@ -42,6 +42,7 @@ const App = () => (
           <Route path="/prestasi/:id" element={<PrestasiDetailPage />} />
           <Route path="/profil" element={<ProfilPage />} />
           <Route path="/kontak" element={<KontakPage />} />
+          <Route path="/galeri" element={<GaleriPage />} />
           <Route path="/pencarian" element={<PencarianPage />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminLayout />}>
