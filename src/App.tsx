@@ -8,6 +8,7 @@ import BeritaPage from "./pages/BeritaPage.tsx";
 import PrestasiPage from "./pages/PrestasiPage.tsx";
 import ProfilPage from "./pages/ProfilPage.tsx";
 import KontakPage from "./pages/KontakPage.tsx";
+import BeritaDetailPage from "./pages/BeritaDetailPage.tsx";
 import AdminLogin from "./pages/admin/AdminLogin.tsx";
 import AdminLayout from "./pages/admin/AdminLayout.tsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.tsx";
