@@ -27,8 +27,8 @@ export default function NewsSection({ news }: Props) {
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {news.slice(0, 6).map((item, i) => (
+            <Link to={`/berita/${item.id}`} key={item.id}>
             <motion.article
-              key={item.id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -68,6 +68,7 @@ export default function NewsSection({ news }: Props) {
                 )}
               </div>
             </motion.article>
+            </Link>
           ))}
         </div>
 

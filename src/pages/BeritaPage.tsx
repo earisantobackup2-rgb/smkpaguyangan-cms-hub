@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
 import { Calendar } from "lucide-react";
+import { Link } from "react-router-dom";
 import { getPublishedNews } from "@/lib/supabase-helpers";
 
 export default function BeritaPage() {
@@ -22,7 +23,7 @@ export default function BeritaPage() {
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {news.map((item) => (
-              <article key={item.id} className="group rounded-xl bg-card shadow-card overflow-hidden">
+              <Link to={`/berita/${item.id}`} key={item.id} className="group rounded-xl bg-card shadow-card overflow-hidden block">
                 {item.image_url && (
                   <div className="aspect-video overflow-hidden">
                     <img src={item.image_url} alt={item.title} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
@@ -39,7 +40,7 @@ export default function BeritaPage() {
                   <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">{item.title}</h3>
                   {item.excerpt && <p className="mt-2 text-sm text-muted-foreground line-clamp-3">{item.excerpt}</p>}
                 </div>
-              </article>
+              </Link>
             ))}
           </div>
         )}
