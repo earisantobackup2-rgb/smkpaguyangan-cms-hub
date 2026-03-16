@@ -23,7 +23,7 @@ export default function BeritaPage() {
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {news.map((item) => (
-              <article key={item.id} className="group rounded-xl bg-card shadow-card overflow-hidden">
+              <Link to={`/berita/${item.id}`} key={item.id} className="group rounded-xl bg-card shadow-card overflow-hidden block">
                 {item.image_url && (
                   <div className="aspect-video overflow-hidden">
                     <img src={item.image_url} alt={item.title} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
