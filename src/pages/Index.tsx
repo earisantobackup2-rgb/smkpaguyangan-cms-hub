@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/public/Navbar";
 import HeroSection from "@/components/public/HeroSection";
+import ProgramsSection from "@/components/public/ProgramsSection";
 import NewsSection from "@/components/public/NewsSection";
 import AchievementsSection from "@/components/public/AchievementsSection";
 import PartnershipsSection from "@/components/public/PartnershipsSection";
