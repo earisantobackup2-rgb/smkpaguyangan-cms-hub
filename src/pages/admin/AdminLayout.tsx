@@ -10,6 +10,7 @@ const sidebarLinks = [
   { label: "Prestasi", href: "/admin/prestasi", icon: Trophy },
   { label: "Kerjasama Industri", href: "/admin/kerjasama", icon: Handshake },
   { label: "Halaman (Visi/Misi)", href: "/admin/halaman", icon: FileText },
+  { label: "Galeri Foto", href: "/admin/galeri", icon: Camera },
   { label: "Data Sekolah", href: "/admin/sekolah", icon: School },
 ];
 

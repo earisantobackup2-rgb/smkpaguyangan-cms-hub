@@ -7,6 +7,7 @@ const navLinks = [
   { label: "Jurusan", href: "/jurusan" },
   { label: "Berita", href: "/berita" },
   { label: "Prestasi", href: "/prestasi" },
+  { label: "Galeri", href: "/galeri" },
   { label: "Profil", href: "/profil" },
   { label: "Kontak", href: "/kontak" },
 ];
