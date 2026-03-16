@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
 import { Calendar } from "lucide-react";
+import { Link } from "react-router-dom";
 import { getPublishedNews } from "@/lib/supabase-helpers";
 
 export default function BeritaPage() {
