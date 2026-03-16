@@ -20,6 +20,8 @@ import AdminKerjasama from "./pages/admin/AdminKerjasama.tsx";
 import AdminHalaman from "./pages/admin/AdminHalaman.tsx";
 import AdminSekolah from "./pages/admin/AdminSekolah.tsx";
 import AdminJurusan from "./pages/admin/AdminJurusan.tsx";
+import AdminGaleri from "./pages/admin/AdminGaleri.tsx";
+import GaleriPage from "./pages/GaleriPage.tsx";
 import PencarianPage from "./pages/PencarianPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
@@ -40,6 +42,7 @@ const App = () => (
           <Route path="/prestasi/:id" element={<PrestasiDetailPage />} />
           <Route path="/profil" element={<ProfilPage />} />
           <Route path="/kontak" element={<KontakPage />} />
+          <Route path="/galeri" element={<GaleriPage />} />
           <Route path="/pencarian" element={<PencarianPage />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminLayout />}>
@@ -50,6 +53,7 @@ const App = () => (
             <Route path="kerjasama" element={<AdminKerjasama />} />
             <Route path="halaman" element={<AdminHalaman />} />
             <Route path="sekolah" element={<AdminSekolah />} />
+            <Route path="galeri" element={<AdminGaleri />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
