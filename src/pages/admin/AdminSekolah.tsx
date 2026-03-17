@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
+import ThemeSelector from "@/components/admin/ThemeSelector";
 
 const FIELDS = [
   { key: "school_name", label: "Nama Sekolah" },
@@ -72,6 +73,10 @@ export default function AdminSekolah() {
         <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
           {saveMutation.isPending ? "Menyimpan..." : "Simpan Semua"}
         </Button>
+      </div>
+
+      <div className="rounded-xl bg-card shadow-card p-6 max-w-2xl mt-6">
+        <ThemeSelector />
       </div>
     </div>
   );
