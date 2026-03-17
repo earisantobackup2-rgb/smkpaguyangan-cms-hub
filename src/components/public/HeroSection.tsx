@@ -1,13 +1,38 @@
-import { motion } from "framer-motion";
+import { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import heroImage from "@/assets/hero-school.jpg";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
+import slideGedung from "@/assets/slide-gedung.jpg";
+import slideOtotronik from "@/assets/slide-ototronik.jpg";
+import slideTsm from "@/assets/slide-tsm.jpg";
+import slideRpl from "@/assets/slide-rpl.jpg";
+import slideFilm from "@/assets/slide-film.jpg";
+
+const slides = [
+  { src: slideGedung, alt: "Gedung SMK Muhammadiyah 1 Paguyangan", caption: "Kampus Modern & Nyaman" },
+  { src: slideOtotronik, alt: "Praktik Teknik Ototronik", caption: "Teknik Ototronik" },
+  { src: slideTsm, alt: "Praktik Teknik Sepeda Motor", caption: "Teknik Sepeda Motor" },
+  { src: slideRpl, alt: "Praktik Rekayasa Perangkat Lunak", caption: "Rekayasa Perangkat Lunak" },
+  { src: slideFilm, alt: "Praktik Produksi Film", caption: "Produksi Film" },
+];
 
 interface HeroProps {
   schoolInfo: Record<string, string>;
 }
 
 export default function HeroSection({ schoolInfo }: HeroProps) {
+  const [current, setCurrent] = useState(0);
+
+  const next = useCallback(() => setCurrent((c) => (c + 1) % slides.length), []);
+  const prev = useCallback(() => setCurrent((c) => (c - 1 + slides.length) % slides.length), []);
+
+  useEffect(() => {
+    const timer = setInterval(next, 4000);
+    return () => clearInterval(timer);
+  }, [next]);
+
   return (
     <section className="relative overflow-hidden bg-secondary">
       <div className="container py-12 md:py-20">
@@ -29,7 +54,7 @@ export default function HeroSection({ schoolInfo }: HeroProps) {
             </p>
             <div className="flex gap-3 mb-8">
               <Button asChild>
-                <Link to="/profil">Eksplorasi Jurusan</Link>
+                <Link to="/jurusan">Eksplorasi Jurusan</Link>
               </Button>
               <Button variant="outline" asChild>
                 <Link to="/profil">Tentang Kami</Link>
@@ -49,24 +74,58 @@ export default function HeroSection({ schoolInfo }: HeroProps) {
             </div>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="relative"
-          >
-            <div className="overflow-hidden rounded-xl shadow-elevated">
-              <img
-                src={heroImage}
-                alt="Gedung SMK Muhammadiyah 1 Paguyangan"
-                className="w-full h-64 md:h-80 object-cover"
-              />
-              <div className="absolute bottom-4 left-4 rounded-lg bg-foreground/80 backdrop-blur-sm px-4 py-2">
-                <p className="text-sm font-bold text-background">Sejak {schoolInfo.established_year || "1998"}</p>
-                <p className="text-xs text-background/70">Mencetak Calon Tenaga Kerja Handal</p>
+          {/* Slideshow */}
+          <div className="relative">
+            <div className="overflow-hidden rounded-xl shadow-elevated aspect-[4/3]">
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={current}
+                  src={slides[current].src}
+                  alt={slides[current].alt}
+                  initial={{ opacity: 0, scale: 1.05 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.5 }}
+                  className="w-full h-full object-cover absolute inset-0"
+                />
+              </AnimatePresence>
+
+              {/* Caption overlay */}
+              <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-foreground/70 to-transparent p-4">
+                <p className="text-sm font-bold text-background">{slides[current].caption}</p>
               </div>
+
+              {/* Navigation arrows */}
+              <button
+                onClick={prev}
+                className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-background/60 backdrop-blur-sm p-1.5 hover:bg-background/80 transition-colors"
+                aria-label="Slide sebelumnya"
+              >
+                <ChevronLeft className="h-4 w-4 text-foreground" />
+              </button>
+              <button
+                onClick={next}
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-background/60 backdrop-blur-sm p-1.5 hover:bg-background/80 transition-colors"
+                aria-label="Slide berikutnya"
+              >
+                <ChevronRight className="h-4 w-4 text-foreground" />
+              </button>
             </div>
-          </motion.div>
+
+            {/* Dots */}
+            <div className="flex justify-center gap-1.5 mt-3">
+              {slides.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrent(i)}
+                  className={`h-2 rounded-full transition-all ${
+                    i === current ? "w-6 bg-primary" : "w-2 bg-muted-foreground/30"
+                  }`}
+                  aria-label={`Slide ${i + 1}`}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>
