@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
+import ThemeSelector from "@/components/admin/ThemeSelector";
 
 const FIELDS = [
   { key: "school_name", label: "Nama Sekolah" },
