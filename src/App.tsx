@@ -28,9 +28,15 @@ import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
 
+function ThemeLoader() {
+  useTheme();
+  return null;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
+      <ThemeLoader />
       <Toaster />
       <Sonner />
       <BrowserRouter>

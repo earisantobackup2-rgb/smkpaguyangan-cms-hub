@@ -74,6 +74,10 @@ export default function AdminSekolah() {
           {saveMutation.isPending ? "Menyimpan..." : "Simpan Semua"}
         </Button>
       </div>
+
+      <div className="rounded-xl bg-card shadow-card p-6 max-w-2xl mt-6">
+        <ThemeSelector />
+      </div>
     </div>
   );
 }
