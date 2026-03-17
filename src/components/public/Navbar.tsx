@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, Search } from "lucide-react";
+import logoSmk from "@/assets/logo-smk.png";
 
 const navLinks = [
   { label: "Beranda", href: "/" },
@@ -20,9 +21,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">
       <div className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary font-heading text-sm font-bold text-primary-foreground">
-            M
-          </div>
+          <img src={logoSmk} alt="Logo SMK Muhammadiyah 1 Paguyangan" className="h-9 w-9 object-contain" />
           <div className="hidden sm:block">
             <p className="text-sm font-bold font-heading leading-none">SMK Muhammadiyah 1</p>
             <p className="text-xs text-muted-foreground">Paguyangan</p>
