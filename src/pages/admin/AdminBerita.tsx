@@ -8,13 +8,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Trash2, Plus } from "lucide-react";
+import { Trash2, Plus, Pencil, X } from "lucide-react";
 import { uploadFile } from "@/lib/supabase-helpers";
+
+const emptyForm = { title: "", content: "", excerpt: "", category: "berita", is_published: false, image_url: "" };
 
 export default function AdminBerita() {
   const queryClient = useQueryClient();
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ title: "", content: "", excerpt: "", category: "berita", is_published: false, image_url: "" });
+  const [form, setForm] = useState(emptyForm);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
   const { data: news = [], isLoading } = useQuery({
@@ -25,25 +28,60 @@ export default function AdminBerita() {
     },
   });
 
-  const createMutation = useMutation({
+  const openCreate = () => {
+    setEditingId(null);
+    setForm(emptyForm);
+    setImageFile(null);
+    setShowForm(true);
+  };
+
+  const openEdit = (item: typeof news[0]) => {
+    setEditingId(item.id);
+    setForm({
+      title: item.title,
+      content: item.content || "",
+      excerpt: item.excerpt || "",
+      category: item.category,
+      is_published: item.is_published,
+      image_url: item.image_url || "",
+    });
+    setImageFile(null);
+    setShowForm(true);
+  };
+
+  const closeForm = () => {
+    setShowForm(false);
+    setEditingId(null);
+    setForm(emptyForm);
+    setImageFile(null);
+  };
+
+  const saveMutation = useMutation({
     mutationFn: async () => {
       let image_url = form.image_url;
       if (imageFile) {
         image_url = await uploadFile(imageFile, `news/${Date.now()}-${imageFile.name}`);
       }
-      const { error } = await supabase.from("news").insert({
-        ...form,
-        image_url,
-        published_at: form.is_published ? new Date().toISOString() : null,
-      });
-      if (error) throw error;
+      if (editingId) {
+        const { error } = await supabase.from("news").update({
+          ...form,
+          image_url,
+          published_at: form.is_published ? new Date().toISOString() : null,
+        }).eq("id", editingId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("news").insert({
+          ...form,
+          image_url,
+          published_at: form.is_published ? new Date().toISOString() : null,
+        });
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-news"] });
-      setShowForm(false);
-      setForm({ title: "", content: "", excerpt: "", category: "berita", is_published: false, image_url: "" });
-      setImageFile(null);
-      toast.success("Berita berhasil ditambahkan");
+      closeForm();
+      toast.success(editingId ? "Berita diperbarui" : "Berita ditambahkan");
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -74,13 +112,15 @@ export default function AdminBerita() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Berita & Pengumuman</h1>
-        <Button onClick={() => setShowForm(!showForm)}>
-          <Plus className="h-4 w-4 mr-1" /> Tambah
-        </Button>
+        <Button onClick={openCreate}><Plus className="h-4 w-4 mr-1" /> Tambah</Button>
       </div>
 
       {showForm && (
         <div className="rounded-xl bg-card shadow-card p-6 mb-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="font-semibold">{editingId ? "Edit Berita" : "Tambah Berita"}</h2>
+            <Button variant="ghost" size="icon" onClick={closeForm}><X className="h-4 w-4" /></Button>
+          </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <Label>Judul</Label>
@@ -106,16 +146,22 @@ export default function AdminBerita() {
             <Textarea rows={5} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} />
           </div>
           <div>
-            <Label>Gambar</Label>
+            <Label>Gambar {editingId && form.image_url && "(kosongkan jika tidak ingin mengganti)"}</Label>
             <Input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files?.[0] || null)} />
+            {editingId && form.image_url && !imageFile && (
+              <img src={form.image_url} alt="" className="h-16 mt-2 rounded object-cover" />
+            )}
           </div>
           <div className="flex items-center gap-2">
             <Switch checked={form.is_published} onCheckedChange={(v) => setForm({ ...form, is_published: v })} />
             <Label>Publish langsung</Label>
           </div>
-          <Button onClick={() => createMutation.mutate()} disabled={createMutation.isPending || !form.title}>
-            {createMutation.isPending ? "Menyimpan..." : "Simpan"}
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending || !form.title}>
+              {saveMutation.isPending ? "Menyimpan..." : "Simpan"}
+            </Button>
+            <Button variant="outline" onClick={closeForm}>Batal</Button>
+          </div>
         </div>
       )}
 
@@ -143,8 +189,13 @@ export default function AdminBerita() {
                       onCheckedChange={(v) => togglePublish.mutate({ id: item.id, is_published: v })}
                     />
                   </td>
-                  <td className="p-3 text-center">
-                    <Button variant="ghost" size="sm" onClick={() => deleteMutation.mutate(item.id)}>
+                  <td className="p-3 text-center space-x-1">
+                    <Button variant="ghost" size="sm" onClick={() => openEdit(item)}>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => {
+                      if (confirm("Hapus berita ini?")) deleteMutation.mutate(item.id);
+                    }}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </td>
