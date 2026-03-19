@@ -6,7 +6,7 @@ import HomeSearchSection from "@/components/public/HomeSearchSection";
 import PartnershipsSection from "@/components/public/PartnershipsSection";
 import InstagramSection from "@/components/public/InstagramSection";
 import Footer from "@/components/public/Footer";
-import { getPublishedNews, getPublishedAchievements, getActivePartnerships, getSchoolInfo } from "@/lib/supabase-helpers";
+import { getActivePartnerships, getSchoolInfo } from "@/lib/supabase-helpers";
 
 const Index = () => {
   const { data: schoolInfo = {} } = useQuery({
