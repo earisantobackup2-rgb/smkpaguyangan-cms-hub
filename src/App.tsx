@@ -22,6 +22,7 @@ import AdminHalaman from "./pages/admin/AdminHalaman.tsx";
 import AdminSekolah from "./pages/admin/AdminSekolah.tsx";
 import AdminJurusan from "./pages/admin/AdminJurusan.tsx";
 import AdminGaleri from "./pages/admin/AdminGaleri.tsx";
+import AdminPesan from "./pages/admin/AdminPesan.tsx";
 import GaleriPage from "./pages/GaleriPage.tsx";
 import PencarianPage from "./pages/PencarianPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
