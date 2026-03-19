@@ -13,14 +13,6 @@ const Index = () => {
     queryKey: ["schoolInfo"],
     queryFn: getSchoolInfo,
   });
-  const { data: news = [] } = useQuery({
-    queryKey: ["news"],
-    queryFn: () => getPublishedNews(6),
-  });
-  const { data: achievements = [] } = useQuery({
-    queryKey: ["achievements"],
-    queryFn: () => getPublishedAchievements(6),
-  });
   const { data: partnerships = [] } = useQuery({
     queryKey: ["partnerships"],
     queryFn: getActivePartnerships,
@@ -31,8 +23,7 @@ const Index = () => {
       <Navbar />
       <HeroSection schoolInfo={schoolInfo} />
       <ProgramsSection />
-      <NewsSection news={news} />
-      <AchievementsSection achievements={achievements} />
+      <HomeSearchSection />
       <PartnershipsSection partnerships={partnerships} />
       <InstagramSection instagramUrl={schoolInfo.instagram_url} />
 
