@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Newspaper, Trophy, Handshake, FileText, School, LogOut, LayoutDashboard, GraduationCap, Camera, MessageSquare } from "lucide-react";
 
@@ -12,7 +13,7 @@ const sidebarLinks = [
   { label: "Halaman (Visi/Misi)", href: "/admin/halaman", icon: FileText },
   { label: "Galeri Foto", href: "/admin/galeri", icon: Camera },
   { label: "Data Sekolah", href: "/admin/sekolah", icon: School },
-  { label: "Pesan Masuk", href: "/admin/pesan", icon: MessageSquare },
+  { label: "Pesan Masuk", href: "/admin/pesan", icon: MessageSquare, badge: true },
 ];
 
 export default function AdminLayout() {
