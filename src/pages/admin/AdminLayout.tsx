@@ -60,7 +60,7 @@ export default function AdminLayout() {
           </Link>
         </div>
         <nav className="flex-1 p-3 space-y-1">
-          {sidebarLinks.map(({ label, href, icon: Icon }) => (
+          {sidebarLinks.map(({ label, href, icon: Icon, badge }) => (
             <Link
               key={href}
               to={href}
@@ -71,7 +71,12 @@ export default function AdminLayout() {
               }`}
             >
               <Icon className="h-4 w-4" />
-              {label}
+              <span className="flex-1">{label}</span>
+              {badge && unreadCount > 0 && (
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground px-1">
+                  {unreadCount}
+                </span>
+              )}
             </Link>
           ))}
         </nav>
