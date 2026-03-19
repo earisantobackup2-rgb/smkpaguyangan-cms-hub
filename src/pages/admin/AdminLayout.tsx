@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Newspaper, Trophy, Handshake, FileText, School, LogOut, LayoutDashboard, GraduationCap, Camera, MessageSquare } from "lucide-react";
 
@@ -12,13 +13,26 @@ const sidebarLinks = [
   { label: "Halaman (Visi/Misi)", href: "/admin/halaman", icon: FileText },
   { label: "Galeri Foto", href: "/admin/galeri", icon: Camera },
   { label: "Data Sekolah", href: "/admin/sekolah", icon: School },
-  { label: "Pesan Masuk", href: "/admin/pesan", icon: MessageSquare },
+  { label: "Pesan Masuk", href: "/admin/pesan", icon: MessageSquare, badge: true },
 ];
 
 export default function AdminLayout() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const { data: unreadCount = 0 } = useQuery({
+    queryKey: ["unread-messages-count"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("contact_messages")
+        .select("*", { count: "exact", head: true })
+        .eq("is_read", false);
+      if (error) throw error;
+      return count || 0;
+    },
+    refetchInterval: 30000,
+  });
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -46,7 +60,7 @@ export default function AdminLayout() {
           </Link>
         </div>
         <nav className="flex-1 p-3 space-y-1">
-          {sidebarLinks.map(({ label, href, icon: Icon }) => (
+          {sidebarLinks.map(({ label, href, icon: Icon, badge }) => (
             <Link
               key={href}
               to={href}
@@ -57,7 +71,12 @@ export default function AdminLayout() {
               }`}
             >
               <Icon className="h-4 w-4" />
-              {label}
+              <span className="flex-1">{label}</span>
+              {badge && unreadCount > 0 && (
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground px-1">
+                  {unreadCount}
+                </span>
+              )}
             </Link>
           ))}
         </nav>
