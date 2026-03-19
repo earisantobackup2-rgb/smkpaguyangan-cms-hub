@@ -21,6 +21,19 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const { data: unreadCount = 0 } = useQuery({
+    queryKey: ["unread-messages-count"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("contact_messages")
+        .select("*", { count: "exact", head: true })
+        .eq("is_read", false);
+      if (error) throw error;
+      return count || 0;
+    },
+    refetchInterval: 30000,
+  });
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (!data.session) navigate("/admin/login");
