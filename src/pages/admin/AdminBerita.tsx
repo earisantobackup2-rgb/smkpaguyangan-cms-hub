@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { Trash2, Plus, Pencil, X } from "lucide-react";
 import { uploadFile } from "@/lib/supabase-helpers";
 
-const emptyForm = { title: "", content: "", excerpt: "", category: "berita", is_published: false, image_url: "" };
+const emptyForm = { title: "", content: "", excerpt: "", category: "berita", is_published: false, image_url: "", published_at: "" };
 
 export default function AdminBerita() {
   const queryClient = useQueryClient();
