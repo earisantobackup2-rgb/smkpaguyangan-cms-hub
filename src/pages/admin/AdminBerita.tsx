@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { Trash2, Plus, Pencil, X } from "lucide-react";
 import { uploadFile } from "@/lib/supabase-helpers";
 
-const emptyForm = { title: "", content: "", excerpt: "", category: "berita", is_published: false, image_url: "" };
+const emptyForm = { title: "", content: "", excerpt: "", category: "berita", is_published: false, image_url: "", published_at: "" };
 
 export default function AdminBerita() {
   const queryClient = useQueryClient();
@@ -44,6 +44,7 @@ export default function AdminBerita() {
       category: item.category,
       is_published: item.is_published,
       image_url: item.image_url || "",
+      published_at: item.published_at ? item.published_at.slice(0, 16) : "",
     });
     setImageFile(null);
     setShowForm(true);
@@ -62,18 +63,22 @@ export default function AdminBerita() {
       if (imageFile) {
         image_url = await uploadFile(imageFile, `news/${Date.now()}-${imageFile.name}`);
       }
+      const published_at = form.published_at
+        ? new Date(form.published_at).toISOString()
+        : form.is_published ? new Date().toISOString() : null;
+      const { published_at: _pa, ...rest } = form;
       if (editingId) {
         const { error } = await supabase.from("news").update({
-          ...form,
+          ...rest,
           image_url,
-          published_at: form.is_published ? new Date().toISOString() : null,
+          published_at,
         }).eq("id", editingId);
         if (error) throw error;
       } else {
         const { error } = await supabase.from("news").insert({
-          ...form,
+          ...rest,
           image_url,
-          published_at: form.is_published ? new Date().toISOString() : null,
+          published_at,
         });
         if (error) throw error;
       }
@@ -151,6 +156,11 @@ export default function AdminBerita() {
             {editingId && form.image_url && !imageFile && (
               <img src={form.image_url} alt="" className="h-16 mt-2 rounded object-cover" />
             )}
+          </div>
+          <div>
+            <Label>Tanggal Publish</Label>
+            <Input type="datetime-local" value={form.published_at} onChange={(e) => setForm({ ...form, published_at: e.target.value })} />
+            <p className="text-xs text-muted-foreground mt-1">Kosongkan untuk otomatis saat dipublish</p>
           </div>
           <div className="flex items-center gap-2">
             <Switch checked={form.is_published} onCheckedChange={(v) => setForm({ ...form, is_published: v })} />

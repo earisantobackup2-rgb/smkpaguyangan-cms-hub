@@ -23,6 +23,7 @@ import AdminSekolah from "./pages/admin/AdminSekolah.tsx";
 import AdminJurusan from "./pages/admin/AdminJurusan.tsx";
 import AdminGaleri from "./pages/admin/AdminGaleri.tsx";
 import AdminPesan from "./pages/admin/AdminPesan.tsx";
+import AdminMenu from "./pages/admin/AdminMenu.tsx";
 import GaleriPage from "./pages/GaleriPage.tsx";
 import PencarianPage from "./pages/PencarianPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -63,6 +64,7 @@ const App = () => (
             <Route path="sekolah" element={<AdminSekolah />} />
             <Route path="galeri" element={<AdminGaleri />} />
             <Route path="pesan" element={<AdminPesan />} />
+            <Route path="menu" element={<AdminMenu />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

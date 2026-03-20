@@ -132,6 +132,10 @@ export default function AdminPrestasi() {
               <img src={form.image_url} alt="" className="h-16 mt-2 rounded object-cover" />
             )}
           </div>
+          <div>
+            <Label>Tanggal Publish / Prestasi</Label>
+            <Input type="date" value={form.achievement_date} onChange={(e) => setForm({ ...form, achievement_date: e.target.value })} />
+          </div>
           <div className="flex items-center gap-2">
             <Switch checked={form.is_published} onCheckedChange={(v) => setForm({ ...form, is_published: v })} />
             <Label>Publish</Label>
