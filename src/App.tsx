@@ -66,6 +66,7 @@ const App = () => (
             <Route path="galeri" element={<AdminGaleri />} />
             <Route path="pesan" element={<AdminPesan />} />
             <Route path="menu" element={<AdminMenu />} />
+            <Route path="slides" element={<AdminSlides />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

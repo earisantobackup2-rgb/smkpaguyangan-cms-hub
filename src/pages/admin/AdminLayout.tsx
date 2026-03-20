@@ -6,6 +6,7 @@ import { Newspaper, Trophy, Handshake, FileText, School, LogOut, LayoutDashboard
 
 const sidebarLinks = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { label: "Slide Hero", href: "/admin/slides", icon: ImageIcon },
   { label: "Jurusan & Keahlian", href: "/admin/jurusan", icon: GraduationCap },
   { label: "Berita & Pengumuman", href: "/admin/berita", icon: Newspaper },
   { label: "Prestasi", href: "/admin/prestasi", icon: Trophy },
