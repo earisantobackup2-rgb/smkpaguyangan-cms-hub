@@ -24,15 +24,6 @@ export default function PrestasiDetailPage() {
     enabled: !!id,
   });
 
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({ title: item?.title, url: window.location.href });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      toast.success("Link berhasil disalin!");
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
