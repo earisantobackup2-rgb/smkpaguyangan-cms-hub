@@ -3,9 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
-import { Calendar, ArrowLeft, Share2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { Calendar, ArrowLeft } from "lucide-react";
+import SocialShareButtons from "@/components/public/SocialShareButtons";
 
 export default function BeritaDetailPage() {
   const { id } = useParams<{ id: string }>();
