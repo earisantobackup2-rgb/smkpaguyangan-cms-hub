@@ -63,18 +63,22 @@ export default function AdminBerita() {
       if (imageFile) {
         image_url = await uploadFile(imageFile, `news/${Date.now()}-${imageFile.name}`);
       }
+      const published_at = form.published_at
+        ? new Date(form.published_at).toISOString()
+        : form.is_published ? new Date().toISOString() : null;
+      const { published_at: _pa, ...rest } = form;
       if (editingId) {
         const { error } = await supabase.from("news").update({
-          ...form,
+          ...rest,
           image_url,
-          published_at: form.is_published ? new Date().toISOString() : null,
+          published_at,
         }).eq("id", editingId);
         if (error) throw error;
       } else {
         const { error } = await supabase.from("news").insert({
-          ...form,
+          ...rest,
           image_url,
-          published_at: form.is_published ? new Date().toISOString() : null,
+          published_at,
         });
         if (error) throw error;
       }
