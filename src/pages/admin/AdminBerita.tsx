@@ -157,6 +157,11 @@ export default function AdminBerita() {
               <img src={form.image_url} alt="" className="h-16 mt-2 rounded object-cover" />
             )}
           </div>
+          <div>
+            <Label>Tanggal Publish</Label>
+            <Input type="datetime-local" value={form.published_at} onChange={(e) => setForm({ ...form, published_at: e.target.value })} />
+            <p className="text-xs text-muted-foreground mt-1">Kosongkan untuk otomatis saat dipublish</p>
+          </div>
           <div className="flex items-center gap-2">
             <Switch checked={form.is_published} onCheckedChange={(v) => setForm({ ...form, is_published: v })} />
             <Label>Publish langsung</Label>

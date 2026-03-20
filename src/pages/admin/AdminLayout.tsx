@@ -13,6 +13,7 @@ const sidebarLinks = [
   { label: "Halaman (Visi/Misi)", href: "/admin/halaman", icon: FileText },
   { label: "Galeri Foto", href: "/admin/galeri", icon: Camera },
   { label: "Data Sekolah", href: "/admin/sekolah", icon: School },
+  { label: "Menu Website", href: "/admin/menu", icon: MenuIcon },
   { label: "Pesan Masuk", href: "/admin/pesan", icon: MessageSquare, badge: true },
 ];
 
