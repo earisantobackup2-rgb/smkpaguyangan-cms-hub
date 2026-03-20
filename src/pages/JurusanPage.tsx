@@ -4,6 +4,7 @@ import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
 import { motion } from "framer-motion";
 import { GraduationCap, Briefcase, BookOpen } from "lucide-react";
+import SocialShareButtons from "@/components/public/SocialShareButtons";
 
 export default function JurusanPage() {
   const { data: programs = [], isLoading } = useQuery({
@@ -102,6 +103,10 @@ export default function JurusanPage() {
                       </p>
                     </div>
                   )}
+
+                  <div className="mt-5 pt-4 border-t border-border/50">
+                    <SocialShareButtons title={program.name} url={`${window.location.origin}/jurusan#${program.slug}`} />
+                  </div>
                 </div>
               </motion.div>
             ))}

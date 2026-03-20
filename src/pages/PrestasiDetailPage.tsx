@@ -3,9 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
-import { Calendar, ArrowLeft, Share2, Trophy } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { Calendar, ArrowLeft, Trophy } from "lucide-react";
+import SocialShareButtons from "@/components/public/SocialShareButtons";
 
 export default function PrestasiDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -24,15 +23,6 @@ export default function PrestasiDetailPage() {
     },
     enabled: !!id,
   });
-
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({ title: item?.title, url: window.location.href });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      toast.success("Link berhasil disalin!");
-    }
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -87,14 +77,11 @@ export default function PrestasiDetailPage() {
               </div>
             )}
 
-            <div className="mt-8 pt-6 border-t flex justify-between items-center">
+            <div className="mt-8 pt-6 border-t space-y-4">
+              <SocialShareButtons title={item.title} />
               <Link to="/prestasi" className="text-sm text-primary hover:underline">
                 ← Prestasi lainnya
               </Link>
-              <Button variant="outline" size="sm" onClick={handleShare} className="gap-2">
-                <Share2 className="h-4 w-4" />
-                Bagikan
-              </Button>
             </div>
           </article>
         )}
