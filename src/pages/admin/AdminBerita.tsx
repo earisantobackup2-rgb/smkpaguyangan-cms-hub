@@ -44,6 +44,7 @@ export default function AdminBerita() {
       category: item.category,
       is_published: item.is_published,
       image_url: item.image_url || "",
+      published_at: item.published_at ? item.published_at.slice(0, 16) : "",
     });
     setImageFile(null);
     setShowForm(true);
