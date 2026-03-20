@@ -77,14 +77,11 @@ export default function PrestasiDetailPage() {
               </div>
             )}
 
-            <div className="mt-8 pt-6 border-t flex justify-between items-center">
+            <div className="mt-8 pt-6 border-t space-y-4">
+              <SocialShareButtons title={item.title} />
               <Link to="/prestasi" className="text-sm text-primary hover:underline">
                 ← Prestasi lainnya
               </Link>
-              <Button variant="outline" size="sm" onClick={handleShare} className="gap-2">
-                <Share2 className="h-4 w-4" />
-                Bagikan
-              </Button>
             </div>
           </article>
         )}
