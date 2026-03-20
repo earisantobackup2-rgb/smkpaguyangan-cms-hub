@@ -4,6 +4,7 @@ import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
 import { motion } from "framer-motion";
 import { GraduationCap, Briefcase, BookOpen } from "lucide-react";
+import SocialShareButtons from "@/components/public/SocialShareButtons";
 
 export default function JurusanPage() {
   const { data: programs = [], isLoading } = useQuery({
