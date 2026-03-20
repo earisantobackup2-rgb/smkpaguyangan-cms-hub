@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Newspaper, Trophy, Handshake, FileText, School, LogOut, LayoutDashboard, GraduationCap, Camera, MessageSquare, MenuIcon } from "lucide-react";
+import { Newspaper, Trophy, Handshake, FileText, School, LogOut, LayoutDashboard, GraduationCap, Camera, MessageSquare, MenuIcon, ImageIcon } from "lucide-react";
 
 const sidebarLinks = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { label: "Slide Hero", href: "/admin/slides", icon: ImageIcon },
   { label: "Jurusan & Keahlian", href: "/admin/jurusan", icon: GraduationCap },
   { label: "Berita & Pengumuman", href: "/admin/berita", icon: Newspaper },
   { label: "Prestasi", href: "/admin/prestasi", icon: Trophy },
