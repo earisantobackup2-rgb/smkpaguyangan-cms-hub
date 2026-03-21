@@ -76,20 +76,6 @@ export default function AdminSlides() {
     },
   });
 
-  const saveIntervalMutation = useMutation({
-    mutationFn: async (ms: string) => {
-      const { data: existing } = await supabase.from("school_info").select("id").eq("key", "slide_interval").maybeSingle();
-      if (existing) {
-        await supabase.from("school_info").update({ value: ms }).eq("key", "slide_interval");
-      } else {
-        await supabase.from("school_info").insert({ key: "slide_interval", value: ms });
-      }
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["slide-interval-setting"] });
-      toast.success("Durasi slide disimpan!");
-    },
-  });
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
