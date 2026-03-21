@@ -23,7 +23,7 @@ export default function AdminSlides() {
   const qc = useQueryClient();
   const [editing, setEditing] = useState<SlideForm | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [interval, setInterval_] = useState("4000");
+  const [interval, setInterval_] = useState("6000");
 
   const { data: slides = [], isLoading } = useQuery({
     queryKey: ["admin-slides"],
