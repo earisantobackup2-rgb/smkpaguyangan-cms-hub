@@ -230,7 +230,7 @@ export default function AdminSlides() {
               <img src={slide.image_url} alt={slide.alt_text || ""} className="h-16 w-28 object-cover rounded shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm truncate">{slide.caption || "(Tanpa caption)"}</p>
-                <p className="text-xs text-muted-foreground">Urutan: {slide.sort_order} • {slide.is_active ? "Aktif" : "Nonaktif"}</p>
+                <p className="text-xs text-muted-foreground">Urutan: {slide.sort_order} • {(slide.duration_ms / 1000).toFixed(1)}s • {slide.is_active ? "Aktif" : "Nonaktif"}</p>
               </div>
               <div className="flex gap-1 shrink-0">
                 <Button size="icon" variant="ghost" onClick={() => setEditing({
@@ -240,6 +240,7 @@ export default function AdminSlides() {
                   alt_text: slide.alt_text || "",
                   sort_order: slide.sort_order,
                   is_active: slide.is_active,
+                  duration_ms: slide.duration_ms || 6000,
                 })}>
                   <Pencil className="h-4 w-4" />
                 </Button>
