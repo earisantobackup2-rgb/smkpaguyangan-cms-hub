@@ -153,6 +153,7 @@ export type Database = {
           alt_text: string | null
           caption: string | null
           created_at: string
+          duration_ms: number
           id: string
           image_url: string
           is_active: boolean
@@ -163,6 +164,7 @@ export type Database = {
           alt_text?: string | null
           caption?: string | null
           created_at?: string
+          duration_ms?: number
           id?: string
           image_url: string
           is_active?: boolean
@@ -173,6 +175,7 @@ export type Database = {
           alt_text?: string | null
           caption?: string | null
           created_at?: string
+          duration_ms?: number
           id?: string
           image_url?: string
           is_active?: boolean
