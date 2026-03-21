@@ -57,6 +57,7 @@ export default function AdminSlides() {
           alt_text: form.alt_text,
           sort_order: form.sort_order,
           is_active: form.is_active,
+          duration_ms: Math.max(6000, Math.min(12000, form.duration_ms)),
         }).eq("id", form.id);
         if (error) throw error;
       } else {
@@ -66,6 +67,7 @@ export default function AdminSlides() {
           alt_text: form.alt_text,
           sort_order: form.sort_order,
           is_active: form.is_active,
+          duration_ms: Math.max(6000, Math.min(12000, form.duration_ms)),
         });
         if (error) throw error;
       }
