@@ -103,31 +103,7 @@ export default function AdminSlides() {
         </Button>
       </div>
 
-      {/* Interval setting */}
-      <div className="bg-card rounded-lg border p-4 mb-6">
-        <Label className="text-sm font-semibold mb-2 block">Durasi Slide (milidetik)</Label>
-        <div className="flex gap-3 items-center">
-          <Input
-            type="number"
-            min={6000}
-            max={12000}
-            step={500}
-            value={savedInterval || interval}
-            onChange={(e) => setInterval_(e.target.value)}
-            className="w-40"
-          />
-          <span className="text-sm text-muted-foreground">
-            = {((Number(savedInterval || interval)) / 1000).toFixed(1)} detik
-          </span>
-          <Button size="sm" variant="outline" onClick={() => {
-            const val = Math.max(6000, Math.min(12000, Number(interval)));
-            setInterval_(String(val));
-            saveIntervalMutation.mutate(String(val));
-          }}>
-            Simpan
-          </Button>
-        </div>
-      </div>
+      <p className="text-sm text-muted-foreground mb-6">Durasi setiap slide diatur secara individual (6–12 detik).</p>
 
       {/* Form */}
       {editing && (
