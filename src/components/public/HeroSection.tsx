@@ -26,25 +26,22 @@ export default function HeroSection({ schoolInfo }: HeroProps) {
     },
   });
 
-  const { data: slideInterval = 6000 } = useQuery({
-    queryKey: ["slide-interval-public"],
-    queryFn: async () => {
-      const { data } = await supabase.from("school_info").select("value").eq("key", "slide_interval").maybeSingle();
-      const val = data?.value ? Number(data.value) : 6000;
-      return Math.max(6000, Math.min(12000, val));
-    },
-  });
-
-  const slides = dbSlides.map((s: any) => ({ src: s.image_url, alt: s.alt_text || s.caption || "", caption: s.caption || "" }));
+  const slides = dbSlides.map((s: any) => ({
+    src: s.image_url,
+    alt: s.alt_text || s.caption || "",
+    caption: s.caption || "",
+    duration: Math.max(6000, Math.min(12000, s.duration_ms || 6000)),
+  }));
 
   const next = useCallback(() => setCurrent((c) => (c + 1) % slides.length), [slides.length]);
   const prev = useCallback(() => setCurrent((c) => (c - 1 + slides.length) % slides.length), [slides.length]);
 
   useEffect(() => {
     if (slides.length <= 1) return;
-    const timer = setInterval(next, slideInterval);
-    return () => clearInterval(timer);
-  }, [next, slideInterval, slides.length]);
+    const duration = slides[current]?.duration || 6000;
+    const timer = setTimeout(next, duration);
+    return () => clearTimeout(timer);
+  }, [next, current, slides]);
 
   // Reset current if slides change
   useEffect(() => {
