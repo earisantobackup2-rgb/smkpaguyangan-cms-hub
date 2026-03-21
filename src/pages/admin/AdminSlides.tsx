@@ -38,7 +38,7 @@ export default function AdminSlides() {
     queryKey: ["slide-interval-setting"],
     queryFn: async () => {
       const { data } = await supabase.from("school_info").select("value").eq("key", "slide_interval").maybeSingle();
-      return data?.value || "4000";
+      return data?.value || "6000";
     },
   });
 
