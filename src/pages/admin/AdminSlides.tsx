@@ -15,15 +15,15 @@ interface SlideForm {
   alt_text: string;
   sort_order: number;
   is_active: boolean;
+  duration_ms: number;
 }
 
-const empty: SlideForm = { image_url: "", caption: "", alt_text: "", sort_order: 0, is_active: true };
+const empty: SlideForm = { image_url: "", caption: "", alt_text: "", sort_order: 0, is_active: true, duration_ms: 6000 };
 
 export default function AdminSlides() {
   const qc = useQueryClient();
   const [editing, setEditing] = useState<SlideForm | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [interval, setInterval_] = useState("6000");
 
   const { data: slides = [], isLoading } = useQuery({
     queryKey: ["admin-slides"],
@@ -32,19 +32,6 @@ export default function AdminSlides() {
       if (error) throw error;
       return data;
     },
-  });
-
-  const { data: savedInterval } = useQuery({
-    queryKey: ["slide-interval-setting"],
-    queryFn: async () => {
-      const { data } = await supabase.from("school_info").select("value").eq("key", "slide_interval").maybeSingle();
-      return data?.value || "6000";
-    },
-  });
-
-  // Sync savedInterval to local state
-  useState(() => {
-    if (savedInterval) setInterval_(savedInterval);
   });
 
   const saveMutation = useMutation({
@@ -56,6 +43,7 @@ export default function AdminSlides() {
           alt_text: form.alt_text,
           sort_order: form.sort_order,
           is_active: form.is_active,
+          duration_ms: Math.max(6000, Math.min(12000, form.duration_ms)),
         }).eq("id", form.id);
         if (error) throw error;
       } else {
@@ -65,6 +53,7 @@ export default function AdminSlides() {
           alt_text: form.alt_text,
           sort_order: form.sort_order,
           is_active: form.is_active,
+          duration_ms: Math.max(6000, Math.min(12000, form.duration_ms)),
         });
         if (error) throw error;
       }
@@ -88,20 +77,6 @@ export default function AdminSlides() {
     },
   });
 
-  const saveIntervalMutation = useMutation({
-    mutationFn: async (ms: string) => {
-      const { data: existing } = await supabase.from("school_info").select("id").eq("key", "slide_interval").maybeSingle();
-      if (existing) {
-        await supabase.from("school_info").update({ value: ms }).eq("key", "slide_interval");
-      } else {
-        await supabase.from("school_info").insert({ key: "slide_interval", value: ms });
-      }
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["slide-interval-setting"] });
-      toast.success("Durasi slide disimpan!");
-    },
-  });
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -129,31 +104,7 @@ export default function AdminSlides() {
         </Button>
       </div>
 
-      {/* Interval setting */}
-      <div className="bg-card rounded-lg border p-4 mb-6">
-        <Label className="text-sm font-semibold mb-2 block">Durasi Slide (milidetik)</Label>
-        <div className="flex gap-3 items-center">
-          <Input
-            type="number"
-            min={6000}
-            max={12000}
-            step={500}
-            value={savedInterval || interval}
-            onChange={(e) => setInterval_(e.target.value)}
-            className="w-40"
-          />
-          <span className="text-sm text-muted-foreground">
-            = {((Number(savedInterval || interval)) / 1000).toFixed(1)} detik
-          </span>
-          <Button size="sm" variant="outline" onClick={() => {
-            const val = Math.max(6000, Math.min(12000, Number(interval)));
-            setInterval_(String(val));
-            saveIntervalMutation.mutate(String(val));
-          }}>
-            Simpan
-          </Button>
-        </div>
-      </div>
+      <p className="text-sm text-muted-foreground mb-6">Durasi setiap slide diatur secara individual (6–12 detik).</p>
 
       {/* Form */}
       {editing && (
@@ -186,10 +137,15 @@ export default function AdminSlides() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div>
               <Label>Urutan</Label>
               <Input type="number" value={editing.sort_order} onChange={(e) => setEditing({ ...editing, sort_order: Number(e.target.value) })} />
+            </div>
+            <div>
+              <Label>Durasi (ms)</Label>
+              <Input type="number" min={6000} max={12000} step={500} value={editing.duration_ms} onChange={(e) => setEditing({ ...editing, duration_ms: Number(e.target.value) })} />
+              <p className="text-xs text-muted-foreground mt-1">{(editing.duration_ms / 1000).toFixed(1)} detik (6-12s)</p>
             </div>
             <div className="flex items-center gap-3 pt-6">
               <Switch checked={editing.is_active} onCheckedChange={(c) => setEditing({ ...editing, is_active: c })} />
@@ -222,7 +178,7 @@ export default function AdminSlides() {
               <img src={slide.image_url} alt={slide.alt_text || ""} className="h-16 w-28 object-cover rounded shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm truncate">{slide.caption || "(Tanpa caption)"}</p>
-                <p className="text-xs text-muted-foreground">Urutan: {slide.sort_order} • {slide.is_active ? "Aktif" : "Nonaktif"}</p>
+                <p className="text-xs text-muted-foreground">Urutan: {slide.sort_order} • {(slide.duration_ms / 1000).toFixed(1)}s • {slide.is_active ? "Aktif" : "Nonaktif"}</p>
               </div>
               <div className="flex gap-1 shrink-0">
                 <Button size="icon" variant="ghost" onClick={() => setEditing({
@@ -232,6 +188,7 @@ export default function AdminSlides() {
                   alt_text: slide.alt_text || "",
                   sort_order: slide.sort_order,
                   is_active: slide.is_active,
+                  duration_ms: slide.duration_ms || 6000,
                 })}>
                   <Pencil className="h-4 w-4" />
                 </Button>

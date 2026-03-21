@@ -1,0 +1,1 @@
+ALTER TABLE public.hero_slides ADD COLUMN duration_ms integer NOT NULL DEFAULT 6000;
