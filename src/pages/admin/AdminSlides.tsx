@@ -23,6 +23,7 @@ const empty: SlideForm = { image_url: "", caption: "", alt_text: "", sort_order:
 export default function AdminSlides() {
   const qc = useQueryClient();
   const [editing, setEditing] = useState<SlideForm | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const { data: slides = [], isLoading } = useQuery({
     queryKey: ["admin-slides"],
