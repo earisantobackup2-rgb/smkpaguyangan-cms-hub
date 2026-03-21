@@ -135,8 +135,8 @@ export default function AdminSlides() {
         <div className="flex gap-3 items-center">
           <Input
             type="number"
-            min={1000}
-            max={30000}
+            min={6000}
+            max={12000}
             step={500}
             value={savedInterval || interval}
             onChange={(e) => setInterval_(e.target.value)}

@@ -51,6 +51,35 @@ export default function HeroSection({ schoolInfo }: HeroProps) {
     setCurrent(0);
   }, [dbSlides.length]);
 
+  if (slides.length === 0) {
+    return (
+      <section className="relative overflow-hidden bg-secondary">
+        <div className="container py-12 md:py-20">
+          <div className="grid gap-8 md:grid-cols-2 items-center">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+              <span className="inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary mb-4">
+                Akreditasi {schoolInfo.accreditation || "A"} • {schoolInfo.total_programs || "5"} Konsentrasi Keahlian
+              </span>
+              <h1 className="text-3xl md:text-5xl font-extrabold leading-tight text-foreground mb-4">
+                Keahlian Masa Depan, <span className="text-primary">Akhlak Mulia</span>
+              </h1>
+              <p className="text-muted-foreground text-pretty max-w-md mb-6">
+                SMK Muhammadiyah 1 Paguyangan mencetak generasi unggul yang kompeten, berkarakter, dan siap bersaing di era global.
+              </p>
+              <div className="flex gap-3">
+                <Button asChild><Link to="/jurusan">Eksplorasi Jurusan</Link></Button>
+                <Button variant="outline" asChild><Link to="/profil">Tentang Kami</Link></Button>
+              </div>
+            </motion.div>
+            <div className="rounded-xl bg-muted aspect-[4/3] flex items-center justify-center">
+              <p className="text-muted-foreground text-sm">Belum ada slide. Tambahkan melalui admin panel.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="relative overflow-hidden bg-secondary">
       <div className="container py-12 md:py-20">
