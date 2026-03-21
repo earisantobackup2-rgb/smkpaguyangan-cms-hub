@@ -15,9 +15,10 @@ interface SlideForm {
   alt_text: string;
   sort_order: number;
   is_active: boolean;
+  duration_ms: number;
 }
 
-const empty: SlideForm = { image_url: "", caption: "", alt_text: "", sort_order: 0, is_active: true };
+const empty: SlideForm = { image_url: "", caption: "", alt_text: "", sort_order: 0, is_active: true, duration_ms: 6000 };
 
 export default function AdminSlides() {
   const qc = useQueryClient();
