@@ -189,10 +189,15 @@ export default function AdminSlides() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div>
               <Label>Urutan</Label>
               <Input type="number" value={editing.sort_order} onChange={(e) => setEditing({ ...editing, sort_order: Number(e.target.value) })} />
+            </div>
+            <div>
+              <Label>Durasi (ms)</Label>
+              <Input type="number" min={6000} max={12000} step={500} value={editing.duration_ms} onChange={(e) => setEditing({ ...editing, duration_ms: Number(e.target.value) })} />
+              <p className="text-xs text-muted-foreground mt-1">{(editing.duration_ms / 1000).toFixed(1)} detik (6-12s)</p>
             </div>
             <div className="flex items-center gap-3 pt-6">
               <Switch checked={editing.is_active} onCheckedChange={(c) => setEditing({ ...editing, is_active: c })} />
