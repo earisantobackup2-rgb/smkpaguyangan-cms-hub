@@ -6,21 +6,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-// Fallback static slides
-import slideGedung from "@/assets/slide-gedung.jpg";
-import slideOtotronik from "@/assets/slide-ototronik.jpg";
-import slideTsm from "@/assets/slide-tsm.jpg";
-import slideRpl from "@/assets/slide-rpl.jpg";
-import slideFilm from "@/assets/slide-film.jpg";
-
-const fallbackSlides = [
-  { src: slideGedung, alt: "Gedung SMK Muhammadiyah 1 Paguyangan", caption: "Kampus Modern & Nyaman" },
-  { src: slideOtotronik, alt: "Praktik Teknik Ototronik", caption: "Teknik Ototronik" },
-  { src: slideTsm, alt: "Praktik Teknik Sepeda Motor", caption: "Teknik Sepeda Motor" },
-  { src: slideRpl, alt: "Praktik Rekayasa Perangkat Lunak", caption: "Rekayasa Perangkat Lunak" },
-  { src: slideFilm, alt: "Praktik Produksi Film", caption: "Produksi Film" },
-];
-
 interface HeroProps {
   schoolInfo: Record<string, string>;
 }
@@ -41,17 +26,16 @@ export default function HeroSection({ schoolInfo }: HeroProps) {
     },
   });
 
-  const { data: slideInterval = 4000 } = useQuery({
+  const { data: slideInterval = 6000 } = useQuery({
     queryKey: ["slide-interval-public"],
     queryFn: async () => {
       const { data } = await supabase.from("school_info").select("value").eq("key", "slide_interval").maybeSingle();
-      return data?.value ? Number(data.value) : 4000;
+      const val = data?.value ? Number(data.value) : 6000;
+      return Math.max(6000, Math.min(12000, val));
     },
   });
 
-  const slides = dbSlides.length > 0
-    ? dbSlides.map((s: any) => ({ src: s.image_url, alt: s.alt_text || s.caption || "", caption: s.caption || "" }))
-    : fallbackSlides;
+  const slides = dbSlides.map((s: any) => ({ src: s.image_url, alt: s.alt_text || s.caption || "", caption: s.caption || "" }));
 
   const next = useCallback(() => setCurrent((c) => (c + 1) % slides.length), [slides.length]);
   const prev = useCallback(() => setCurrent((c) => (c - 1 + slides.length) % slides.length), [slides.length]);
