@@ -6,21 +6,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-// Fallback static slides
-import slideGedung from "@/assets/slide-gedung.jpg";
-import slideOtotronik from "@/assets/slide-ototronik.jpg";
-import slideTsm from "@/assets/slide-tsm.jpg";
-import slideRpl from "@/assets/slide-rpl.jpg";
-import slideFilm from "@/assets/slide-film.jpg";
-
-const fallbackSlides = [
-  { src: slideGedung, alt: "Gedung SMK Muhammadiyah 1 Paguyangan", caption: "Kampus Modern & Nyaman" },
-  { src: slideOtotronik, alt: "Praktik Teknik Ototronik", caption: "Teknik Ototronik" },
-  { src: slideTsm, alt: "Praktik Teknik Sepeda Motor", caption: "Teknik Sepeda Motor" },
-  { src: slideRpl, alt: "Praktik Rekayasa Perangkat Lunak", caption: "Rekayasa Perangkat Lunak" },
-  { src: slideFilm, alt: "Praktik Produksi Film", caption: "Produksi Film" },
-];
-
 interface HeroProps {
   schoolInfo: Record<string, string>;
 }
@@ -41,17 +26,16 @@ export default function HeroSection({ schoolInfo }: HeroProps) {
     },
   });
 
-  const { data: slideInterval = 4000 } = useQuery({
+  const { data: slideInterval = 6000 } = useQuery({
     queryKey: ["slide-interval-public"],
     queryFn: async () => {
       const { data } = await supabase.from("school_info").select("value").eq("key", "slide_interval").maybeSingle();
-      return data?.value ? Number(data.value) : 4000;
+      const val = data?.value ? Number(data.value) : 6000;
+      return Math.max(6000, Math.min(12000, val));
     },
   });
 
-  const slides = dbSlides.length > 0
-    ? dbSlides.map((s: any) => ({ src: s.image_url, alt: s.alt_text || s.caption || "", caption: s.caption || "" }))
-    : fallbackSlides;
+  const slides = dbSlides.map((s: any) => ({ src: s.image_url, alt: s.alt_text || s.caption || "", caption: s.caption || "" }));
 
   const next = useCallback(() => setCurrent((c) => (c + 1) % slides.length), [slides.length]);
   const prev = useCallback(() => setCurrent((c) => (c - 1 + slides.length) % slides.length), [slides.length]);
@@ -66,6 +50,35 @@ export default function HeroSection({ schoolInfo }: HeroProps) {
   useEffect(() => {
     setCurrent(0);
   }, [dbSlides.length]);
+
+  if (slides.length === 0) {
+    return (
+      <section className="relative overflow-hidden bg-secondary">
+        <div className="container py-12 md:py-20">
+          <div className="grid gap-8 md:grid-cols-2 items-center">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+              <span className="inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary mb-4">
+                Akreditasi {schoolInfo.accreditation || "A"} • {schoolInfo.total_programs || "5"} Konsentrasi Keahlian
+              </span>
+              <h1 className="text-3xl md:text-5xl font-extrabold leading-tight text-foreground mb-4">
+                Keahlian Masa Depan, <span className="text-primary">Akhlak Mulia</span>
+              </h1>
+              <p className="text-muted-foreground text-pretty max-w-md mb-6">
+                SMK Muhammadiyah 1 Paguyangan mencetak generasi unggul yang kompeten, berkarakter, dan siap bersaing di era global.
+              </p>
+              <div className="flex gap-3">
+                <Button asChild><Link to="/jurusan">Eksplorasi Jurusan</Link></Button>
+                <Button variant="outline" asChild><Link to="/profil">Tentang Kami</Link></Button>
+              </div>
+            </motion.div>
+            <div className="rounded-xl bg-muted aspect-[4/3] flex items-center justify-center">
+              <p className="text-muted-foreground text-sm">Belum ada slide. Tambahkan melalui admin panel.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="relative overflow-hidden bg-secondary">

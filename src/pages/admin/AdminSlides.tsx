@@ -23,7 +23,7 @@ export default function AdminSlides() {
   const qc = useQueryClient();
   const [editing, setEditing] = useState<SlideForm | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [interval, setInterval_] = useState("4000");
+  const [interval, setInterval_] = useState("6000");
 
   const { data: slides = [], isLoading } = useQuery({
     queryKey: ["admin-slides"],
@@ -38,7 +38,7 @@ export default function AdminSlides() {
     queryKey: ["slide-interval-setting"],
     queryFn: async () => {
       const { data } = await supabase.from("school_info").select("value").eq("key", "slide_interval").maybeSingle();
-      return data?.value || "4000";
+      return data?.value || "6000";
     },
   });
 
@@ -135,8 +135,8 @@ export default function AdminSlides() {
         <div className="flex gap-3 items-center">
           <Input
             type="number"
-            min={1000}
-            max={30000}
+            min={6000}
+            max={12000}
             step={500}
             value={savedInterval || interval}
             onChange={(e) => setInterval_(e.target.value)}
@@ -145,7 +145,11 @@ export default function AdminSlides() {
           <span className="text-sm text-muted-foreground">
             = {((Number(savedInterval || interval)) / 1000).toFixed(1)} detik
           </span>
-          <Button size="sm" variant="outline" onClick={() => saveIntervalMutation.mutate(interval)}>
+          <Button size="sm" variant="outline" onClick={() => {
+            const val = Math.max(6000, Math.min(12000, Number(interval)));
+            setInterval_(String(val));
+            saveIntervalMutation.mutate(String(val));
+          }}>
             Simpan
           </Button>
         </div>
