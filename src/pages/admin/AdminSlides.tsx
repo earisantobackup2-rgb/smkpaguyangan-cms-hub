@@ -23,8 +23,6 @@ const empty: SlideForm = { image_url: "", caption: "", alt_text: "", sort_order:
 export default function AdminSlides() {
   const qc = useQueryClient();
   const [editing, setEditing] = useState<SlideForm | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [interval, setInterval_] = useState("6000");
 
   const { data: slides = [], isLoading } = useQuery({
     queryKey: ["admin-slides"],
@@ -33,19 +31,6 @@ export default function AdminSlides() {
       if (error) throw error;
       return data;
     },
-  });
-
-  const { data: savedInterval } = useQuery({
-    queryKey: ["slide-interval-setting"],
-    queryFn: async () => {
-      const { data } = await supabase.from("school_info").select("value").eq("key", "slide_interval").maybeSingle();
-      return data?.value || "6000";
-    },
-  });
-
-  // Sync savedInterval to local state
-  useState(() => {
-    if (savedInterval) setInterval_(savedInterval);
   });
 
   const saveMutation = useMutation({
