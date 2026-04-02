@@ -97,3 +97,17 @@
     text-wrap: pretty;
   }
 }
+
+/* High Contrast Mode */
+.high-contrast {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --card: 0 0% 5%;
+  --card-foreground: 0 0% 100%;
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 85%;
+  --border: 0 0% 40%;
+  --input: 0 0% 40%;
+}
+.high-contrast img { filter: contrast(1.2); }
+.high-contrast a { text-decoration: underline; }
