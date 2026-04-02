@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Newspaper, Trophy, Handshake, FileText, School, LogOut, LayoutDashboard, GraduationCap, Camera, MessageSquare, MenuIcon, ImageIcon, LayoutGrid } from "lucide-react";
+import { Newspaper, Trophy, Handshake, FileText, School, LogOut, LayoutDashboard, GraduationCap, Camera, MessageSquare, MenuIcon, ImageIcon, LayoutGrid, X } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 
 const sidebarLinks = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -19,10 +21,59 @@ const sidebarLinks = [
   { label: "Pesan Masuk", href: "/admin/pesan", icon: MessageSquare, badge: true },
 ];
 
+function SidebarContent({ location, unreadCount, onNavigate }: { location: ReturnType<typeof useLocation>; unreadCount: number; onNavigate?: () => void }) {
+  return (
+    <>
+      <div className="p-4 border-b">
+        <Link to="/admin" className="flex items-center gap-2" onClick={onNavigate}>
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary font-heading text-sm font-bold text-primary-foreground">M</div>
+          <div>
+            <p className="text-sm font-bold font-heading">CMS Admin</p>
+            <p className="text-xs text-muted-foreground">Paguyangan</p>
+          </div>
+        </Link>
+      </div>
+      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+        {sidebarLinks.map(({ label, href, icon: Icon, badge }) => (
+          <Link
+            key={href}
+            to={href}
+            onClick={onNavigate}
+            className={`flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors ${
+              location.pathname === href
+                ? "bg-primary/10 text-primary font-medium"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted"
+            }`}
+          >
+            <Icon className="h-4 w-4" />
+            <span className="flex-1">{label}</span>
+            {badge && unreadCount > 0 && (
+              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground px-1">
+                {unreadCount}
+              </span>
+            )}
+          </Link>
+        ))}
+      </nav>
+      <div className="p-3 border-t">
+        <button
+          onClick={() => supabase.auth.signOut()}
+          className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-destructive rounded-md w-full transition-colors"
+        >
+          <LogOut className="h-4 w-4" />
+          Keluar
+        </button>
+      </div>
+    </>
+  );
+}
+
 export default function AdminLayout() {
   const [loading, setLoading] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = useIsMobile();
 
   const { data: unreadCount = 0 } = useQuery({
     queryKey: ["unread-messages-count"],
@@ -52,50 +103,49 @@ export default function AdminLayout() {
 
   return (
     <div className="flex min-h-screen">
-      <aside className="w-64 bg-secondary border-r flex flex-col shrink-0">
-        <div className="p-4 border-b">
-          <Link to="/admin" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary font-heading text-sm font-bold text-primary-foreground">M</div>
-            <div>
-              <p className="text-sm font-bold font-heading">CMS Admin</p>
-              <p className="text-xs text-muted-foreground">Paguyangan</p>
+      {/* Desktop Sidebar */}
+      {!isMobile && (
+        <aside className="w-64 bg-secondary border-r flex flex-col shrink-0 sticky top-0 h-screen">
+          <SidebarContent location={location} unreadCount={unreadCount} />
+        </aside>
+      )}
+
+      {/* Mobile Sidebar Sheet */}
+      {isMobile && (
+        <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+          <SheetContent side="left" className="p-0 w-72 flex flex-col">
+            <SheetTitle className="sr-only">Menu Navigasi</SheetTitle>
+            <SidebarContent location={location} unreadCount={unreadCount} onNavigate={() => setSidebarOpen(false)} />
+          </SheetContent>
+        </Sheet>
+      )}
+
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Mobile Header */}
+        {isMobile && (
+          <header className="sticky top-0 z-40 bg-background border-b px-4 py-3 flex items-center gap-3">
+            <button onClick={() => setSidebarOpen(true)} className="p-1.5 rounded-md hover:bg-muted">
+              <MenuIcon className="h-5 w-5" />
+            </button>
+            <div className="flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary font-heading text-xs font-bold text-primary-foreground">M</div>
+              <span className="text-sm font-bold font-heading">CMS Admin</span>
             </div>
-          </Link>
-        </div>
-        <nav className="flex-1 p-3 space-y-1">
-          {sidebarLinks.map(({ label, href, icon: Icon, badge }) => (
-            <Link
-              key={href}
-              to={href}
-              className={`flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors ${
-                location.pathname === href
-                  ? "bg-primary/10 text-primary font-medium"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
-              }`}
-            >
-              <Icon className="h-4 w-4" />
-              <span className="flex-1">{label}</span>
-              {badge && unreadCount > 0 && (
-                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground px-1">
+            {unreadCount > 0 && (
+              <Link to="/admin/pesan" className="ml-auto relative">
+                <MessageSquare className="h-5 w-5 text-muted-foreground" />
+                <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground px-0.5">
                   {unreadCount}
                 </span>
-              )}
-            </Link>
-          ))}
-        </nav>
-        <div className="p-3 border-t">
-          <button
-            onClick={() => supabase.auth.signOut()}
-            className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-destructive rounded-md w-full transition-colors"
-          >
-            <LogOut className="h-4 w-4" />
-            Keluar
-          </button>
-        </div>
-      </aside>
-      <main className="flex-1 bg-background p-6 overflow-auto">
-        <Outlet />
-      </main>
+              </Link>
+            )}
+          </header>
+        )}
+
+        <main className="flex-1 bg-background p-4 sm:p-6 overflow-auto">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }
