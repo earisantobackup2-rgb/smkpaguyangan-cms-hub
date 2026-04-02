@@ -184,6 +184,39 @@ export type Database = {
         }
         Relationships: []
       }
+      homepage_sections: {
+        Row: {
+          config: Json | null
+          created_at: string
+          id: string
+          is_visible: boolean
+          label: string
+          section_key: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          config?: Json | null
+          created_at?: string
+          id?: string
+          is_visible?: boolean
+          label: string
+          section_key: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          config?: Json | null
+          created_at?: string
+          id?: string
+          is_visible?: boolean
+          label?: string
+          section_key?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       menu_items: {
         Row: {
           created_at: string
