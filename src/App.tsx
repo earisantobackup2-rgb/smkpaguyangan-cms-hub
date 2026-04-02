@@ -25,6 +25,7 @@ import AdminGaleri from "./pages/admin/AdminGaleri.tsx";
 import AdminPesan from "./pages/admin/AdminPesan.tsx";
 import AdminMenu from "./pages/admin/AdminMenu.tsx";
 import AdminSlides from "./pages/admin/AdminSlides.tsx";
+import AdminSections from "./pages/admin/AdminSections.tsx";
 import GaleriPage from "./pages/GaleriPage.tsx";
 import PencarianPage from "./pages/PencarianPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
