@@ -62,6 +62,11 @@ const Index = () => {
         return <PartnershipsSection key={section.id} partnerships={partnerships} />;
       case "instagram":
         return <InstagramSection key={section.id} instagramUrl={schoolInfo.instagram_url} />;
+      case "custom": {
+        const cs = customSections.find((c: any) => c.section_id === section.id);
+        if (!cs) return null;
+        return <CustomSection key={section.id} data={cs} />;
+      }
       case "maps":
         return (
           <section key={section.id} className="py-16 bg-background">
