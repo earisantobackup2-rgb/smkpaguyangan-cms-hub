@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { GripVertical, Eye, EyeOff, Plus, Save, Trash2, Pencil, Copy, LayoutTemplate } from "lucide-react";
+import { GripVertical, Eye, EyeOff, Plus, Save, Trash2, Pencil, Copy, LayoutTemplate, Upload, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -59,6 +59,25 @@ export default function AdminSections() {
   const [customOpen, setCustomOpen] = useState(false);
   const [editingCustom, setEditingCustom] = useState<CustomData>(emptyCustom);
   const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = async (file: File) => {
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const fileName = `custom-sections/${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("uploads").upload(fileName, file);
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from("uploads").getPublicUrl(fileName);
+      setEditingCustom((prev) => ({ ...prev, image_url: urlData.publicUrl }));
+      toast.success("Gambar berhasil diupload");
+    } catch (e: any) {
+      toast.error(e.message || "Gagal upload gambar");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const { data: sections = [], isLoading } = useQuery({
     queryKey: ["homepage-sections"],
@@ -326,8 +345,32 @@ export default function AdminSections() {
               <Textarea value={editingCustom.content} onChange={(e) => setEditingCustom({ ...editingCustom, content: e.target.value })} placeholder="Isi konten section (bisa HTML)" rows={4} />
             </div>
             <div>
-              <Label>URL Gambar</Label>
-              <Input value={editingCustom.image_url} onChange={(e) => setEditingCustom({ ...editingCustom, image_url: e.target.value })} placeholder="https://..." />
+              <Label>Gambar</Label>
+              <div className="flex gap-2 items-center">
+                <Input
+                  value={editingCustom.image_url}
+                  onChange={(e) => setEditingCustom({ ...editingCustom, image_url: e.target.value })}
+                  placeholder="URL gambar atau upload file"
+                  className="flex-1"
+                />
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleImageUpload(file);
+                    e.target.value = "";
+                  }}
+                />
+                <Button type="button" variant="outline" size="sm" disabled={uploading} onClick={() => fileInputRef.current?.click()}>
+                  {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                </Button>
+              </div>
+              {editingCustom.image_url && (
+                <img src={editingCustom.image_url} alt="Preview" className="mt-2 rounded-lg max-h-32 object-cover" />
+              )}
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
