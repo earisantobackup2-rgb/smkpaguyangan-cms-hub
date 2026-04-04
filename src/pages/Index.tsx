@@ -9,6 +9,7 @@ import InstagramSection from "@/components/public/InstagramSection";
 import Footer from "@/components/public/Footer";
 import AccessibilityToolbar from "@/components/public/AccessibilityToolbar";
 import { getActivePartnerships, getSchoolInfo } from "@/lib/supabase-helpers";
+import CustomSection from "@/components/public/CustomSection";
 
 const SECTION_MAP: Record<string, React.FC<any>> = {
   hero: HeroSection,
@@ -40,6 +41,14 @@ const Index = () => {
       return data;
     },
   });
+  const { data: customSections = [] } = useQuery({
+    queryKey: ["custom-sections"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("custom_sections").select("*");
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const renderSection = (section: any) => {
     switch (section.section_key) {
@@ -53,6 +62,11 @@ const Index = () => {
         return <PartnershipsSection key={section.id} partnerships={partnerships} />;
       case "instagram":
         return <InstagramSection key={section.id} instagramUrl={schoolInfo.instagram_url} />;
+      case "custom": {
+        const cs = customSections.find((c: any) => c.section_id === section.id);
+        if (!cs) return null;
+        return <CustomSection key={section.id} data={cs} />;
+      }
       case "maps":
         return (
           <section key={section.id} className="py-16 bg-background">

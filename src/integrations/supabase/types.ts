@@ -80,6 +80,59 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_sections: {
+        Row: {
+          bg_color: string | null
+          button_text: string | null
+          button_url: string | null
+          content: string | null
+          created_at: string
+          heading: string
+          id: string
+          image_url: string | null
+          layout: string
+          section_id: string
+          subheading: string | null
+          updated_at: string
+        }
+        Insert: {
+          bg_color?: string | null
+          button_text?: string | null
+          button_url?: string | null
+          content?: string | null
+          created_at?: string
+          heading?: string
+          id?: string
+          image_url?: string | null
+          layout?: string
+          section_id: string
+          subheading?: string | null
+          updated_at?: string
+        }
+        Update: {
+          bg_color?: string | null
+          button_text?: string | null
+          button_url?: string | null
+          content?: string | null
+          created_at?: string
+          heading?: string
+          id?: string
+          image_url?: string | null
+          layout?: string
+          section_id?: string
+          subheading?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_sections_section_id_fkey"
+            columns: ["section_id"]
+            isOneToOne: false
+            referencedRelation: "homepage_sections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gallery_albums: {
         Row: {
           cover_image_url: string | null
