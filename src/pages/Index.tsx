@@ -41,6 +41,14 @@ const Index = () => {
       return data;
     },
   });
+  const { data: customSections = [] } = useQuery({
+    queryKey: ["custom-sections"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("custom_sections").select("*");
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const renderSection = (section: any) => {
     switch (section.section_key) {
