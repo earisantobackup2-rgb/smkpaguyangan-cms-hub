@@ -9,6 +9,7 @@ import InstagramSection from "@/components/public/InstagramSection";
 import Footer from "@/components/public/Footer";
 import AccessibilityToolbar from "@/components/public/AccessibilityToolbar";
 import { getActivePartnerships, getSchoolInfo } from "@/lib/supabase-helpers";
+import CustomSection from "@/components/public/CustomSection";
 
 const SECTION_MAP: Record<string, React.FC<any>> = {
   hero: HeroSection,
