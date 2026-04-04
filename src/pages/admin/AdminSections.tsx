@@ -59,6 +59,25 @@ export default function AdminSections() {
   const [customOpen, setCustomOpen] = useState(false);
   const [editingCustom, setEditingCustom] = useState<CustomData>(emptyCustom);
   const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = async (file: File) => {
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const fileName = `custom-sections/${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("uploads").upload(fileName, file);
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from("uploads").getPublicUrl(fileName);
+      setEditingCustom((prev) => ({ ...prev, image_url: urlData.publicUrl }));
+      toast.success("Gambar berhasil diupload");
+    } catch (e: any) {
+      toast.error(e.message || "Gagal upload gambar");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const { data: sections = [], isLoading } = useQuery({
     queryKey: ["homepage-sections"],
