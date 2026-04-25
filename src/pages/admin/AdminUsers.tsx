@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Loader2, Plus, Trash2, KeyRound, Shield } from "lucide-react";
+import { Loader2, Plus, Trash2, KeyRound, Shield, MailCheck } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -47,6 +47,8 @@ export default function AdminUsers() {
   const [createOpen, setCreateOpen] = useState(false);
   const [pwdUser, setPwdUser] = useState<AdminUser | null>(null);
   const [deleteUser, setDeleteUser] = useState<AdminUser | null>(null);
+  const [resetUser, setResetUser] = useState<AdminUser | null>(null);
+  const [resetLoading, setResetLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   // Form state
@@ -144,6 +146,23 @@ export default function AdminUsers() {
     }
   }
 
+  async function handleSendResetLink() {
+    if (!resetUser) return;
+    setResetLoading(true);
+    try {
+      await callAdminFn("send_reset_link", {
+        user_id: resetUser.id,
+        redirect_to: `${window.location.origin}/reset-password`,
+      });
+      toast.success(`Tautan reset dikirim ke ${resetUser.email}`);
+      setResetUser(null);
+    } catch (err: any) {
+      toast.error("Gagal: " + err.message);
+    } finally {
+      setResetLoading(false);
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -200,6 +219,9 @@ export default function AdminUsers() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
+                      <Button size="sm" variant="ghost" onClick={() => setResetUser(u)} title="Kirim Tautan Reset Password">
+                        <MailCheck className="h-4 w-4" />
+                      </Button>
                       <Button size="sm" variant="ghost" onClick={() => setPwdUser(u)} title="Ubah Password">
                         <KeyRound className="h-4 w-4" />
                       </Button>
@@ -270,9 +292,13 @@ export default function AdminUsers() {
             <DialogTitle>Ubah Password — {pwdUser?.email}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handlePasswordReset} className="space-y-4">
+            <div className="rounded-md border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-amber-700 dark:text-amber-400">
+              ⚠️ Mengubah password langsung melewati verifikasi email. Untuk keamanan, lebih disarankan menggunakan tombol <b>Kirim Tautan Reset</b> agar pengguna mengatur sendiri password barunya.
+            </div>
             <div>
               <Label htmlFor="np">Password Baru</Label>
-              <Input id="np" type="password" minLength={6} required value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+              <Input id="np" type="password" minLength={8} required value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+              <p className="text-xs text-muted-foreground mt-1">Minimal 8 karakter.</p>
             </div>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setPwdUser(null)}>Batal</Button>
@@ -283,6 +309,27 @@ export default function AdminUsers() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Send reset link dialog */}
+      <AlertDialog open={!!resetUser} onOpenChange={(o) => !o && setResetUser(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Kirim tautan reset password?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tautan reset password akan dikirim ke <b>{resetUser?.email}</b>.
+              Tautan berlaku terbatas dan hanya bisa digunakan sekali. Pengguna akan
+              membuka halaman aman untuk mengatur password baru sendiri.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={resetLoading}>Batal</AlertDialogCancel>
+            <AlertDialogAction onClick={(e) => { e.preventDefault(); handleSendResetLink(); }} disabled={resetLoading}>
+              {resetLoading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+              Kirim Tautan
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Delete dialog */}
       <AlertDialog open={!!deleteUser} onOpenChange={(o) => !o && setDeleteUser(null)}>
