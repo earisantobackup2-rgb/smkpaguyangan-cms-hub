@@ -115,6 +115,26 @@ Deno.serve(async (req) => {
       });
     }
 
+    if (action === "send_reset_link") {
+      const { user_id, redirect_to } = body;
+      // Look up email
+      const { data: target, error: gErr } = await admin.auth.admin.getUserById(user_id);
+      if (gErr || !target.user?.email) {
+        return new Response(JSON.stringify({ error: "Pengguna tidak ditemukan" }), {
+          status: 404,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      // Trigger Supabase Auth recovery email (uses configured email templates)
+      const { error } = await admin.auth.resetPasswordForEmail(target.user.email, {
+        redirectTo: redirect_to,
+      });
+      if (error) throw error;
+      return new Response(JSON.stringify({ ok: true, email: target.user.email }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (action === "delete") {
       const { user_id } = body;
       if (user_id === userData.user.id) {
