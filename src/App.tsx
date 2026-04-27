@@ -26,9 +26,13 @@ import AdminPesan from "./pages/admin/AdminPesan.tsx";
 import AdminMenu from "./pages/admin/AdminMenu.tsx";
 import AdminSlides from "./pages/admin/AdminSlides.tsx";
 import AdminSections from "./pages/admin/AdminSections.tsx";
+import AdminUsers from "./pages/admin/AdminUsers.tsx";
+import AdminChatbot from "./pages/admin/AdminChatbot.tsx";
 import GaleriPage from "./pages/GaleriPage.tsx";
 import PencarianPage from "./pages/PencarianPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import ChatbotWidget from "./components/public/ChatbotWidget.tsx";
+import { useLocation } from "react-router-dom";
 
 const queryClient = new QueryClient();
 
@@ -44,7 +48,18 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
+        <AppRoutes />
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
+
+function AppRoutes() {
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith("/admin");
+  return (
+    <>
+      <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/jurusan" element={<JurusanPage />} />
           <Route path="/berita" element={<BeritaPage />} />
@@ -69,12 +84,14 @@ const App = () => (
             <Route path="menu" element={<AdminMenu />} />
             <Route path="slides" element={<AdminSlides />} />
             <Route path="sections" element={<AdminSections />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="chatbot" element={<AdminChatbot />} />
           </Route>
           <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+      </Routes>
+      {!isAdmin && <ChatbotWidget />}
+    </>
+  );
+}
 
 export default App;
