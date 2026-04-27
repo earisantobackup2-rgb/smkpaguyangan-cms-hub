@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Newspaper, Trophy, Handshake, FileText, School, LogOut, LayoutDashboard, GraduationCap, Camera, MessageSquare, MenuIcon, ImageIcon, LayoutGrid, X } from "lucide-react";
+import { Newspaper, Trophy, Handshake, FileText, School, LogOut, LayoutDashboard, GraduationCap, Camera, MessageSquare, MenuIcon, ImageIcon, LayoutGrid, X, Bot, Users } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 
@@ -19,6 +19,8 @@ const sidebarLinks = [
   { label: "Menu Website", href: "/admin/menu", icon: MenuIcon },
   { label: "Section Homepage", href: "/admin/sections", icon: LayoutGrid },
   { label: "Pesan Masuk", href: "/admin/pesan", icon: MessageSquare, badge: true },
+  { label: "Chatbot AI", href: "/admin/chatbot", icon: Bot },
+  { label: "Kelola Pengguna", href: "/admin/users", icon: Users },
 ];
 
 function SidebarContent({ location, unreadCount, onNavigate }: { location: ReturnType<typeof useLocation>; unreadCount: number; onNavigate?: () => void }) {

@@ -50,6 +50,105 @@ export type Database = {
         }
         Relationships: []
       }
+      chatbot_conversations: {
+        Row: {
+          bot_response: string
+          created_at: string
+          id: string
+          session_id: string
+          user_message: string
+        }
+        Insert: {
+          bot_response: string
+          created_at?: string
+          id?: string
+          session_id: string
+          user_message: string
+        }
+        Update: {
+          bot_response?: string
+          created_at?: string
+          id?: string
+          session_id?: string
+          user_message?: string
+        }
+        Relationships: []
+      }
+      chatbot_knowledge: {
+        Row: {
+          category: string | null
+          content: string
+          created_at: string
+          id: string
+          is_active: boolean
+          source_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          source_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          source_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      chatbot_settings: {
+        Row: {
+          bot_name: string
+          created_at: string
+          id: string
+          is_enabled: boolean
+          offset_x: number
+          offset_y: number
+          placeholder_text: string
+          position: string
+          primary_color: string
+          updated_at: string
+          welcome_message: string
+        }
+        Insert: {
+          bot_name?: string
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          offset_x?: number
+          offset_y?: number
+          placeholder_text?: string
+          position?: string
+          primary_color?: string
+          updated_at?: string
+          welcome_message?: string
+        }
+        Update: {
+          bot_name?: string
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          offset_x?: number
+          offset_y?: number
+          placeholder_text?: string
+          position?: string
+          primary_color?: string
+          updated_at?: string
+          welcome_message?: string
+        }
+        Relationships: []
+      }
       contact_messages: {
         Row: {
           created_at: string
