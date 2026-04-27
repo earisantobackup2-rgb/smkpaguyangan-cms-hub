@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import arinaAvatar from "@/assets/arina-chatbot.png";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -95,21 +96,41 @@ export default function ChatbotWidget() {
         }}
       >
         {!open && (
-          <button
-            onClick={() => setOpen(true)}
-            aria-label="Buka chatbot"
-            className="pointer-events-auto relative flex h-14 w-14 items-center justify-center rounded-full bg-background shadow-lg transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 animate-bounce-slow"
-            style={{
-              border: `3px solid ${color}`,
-              boxShadow: `0 0 0 0 ${color}66`,
-            }}
-          >
+          <div className="pointer-events-auto relative">
+            {/* Drop shadow under the circle */}
             <span
-              className="absolute inset-0 rounded-full animate-ping-slow"
-              style={{ border: `2px solid ${color}`, opacity: 0.6 }}
+              aria-hidden
+              className="absolute left-1/2 -translate-x-1/2 -bottom-3 h-3 w-14 rounded-[50%] blur-md opacity-40"
+              style={{ background: "rgba(0,0,0,0.55)" }}
             />
-            <MessageCircle className="h-6 w-6" style={{ color }} />
-          </button>
+            <button
+              onClick={() => setOpen(true)}
+              aria-label={`Buka chatbot ${settings.bot_name}`}
+              className="relative flex h-16 w-16 items-center justify-center rounded-full bg-white overflow-hidden transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 animate-bounce-slow"
+              style={{
+                border: `3px solid ${color}`,
+                boxShadow: `0 12px 24px -8px rgba(0,0,0,0.35), 0 0 0 4px ${color}22`,
+              }}
+            >
+              {/* Pulsing outline ring */}
+              <span
+                className="absolute -inset-1 rounded-full animate-ping-slow pointer-events-none"
+                style={{ border: `2px solid ${color}`, opacity: 0.6 }}
+              />
+              <img
+                src={arinaAvatar}
+                alt={settings.bot_name}
+                className="h-full w-full object-cover object-top scale-110"
+                draggable={false}
+              />
+            </button>
+            {/* Online dot */}
+            <span
+              aria-hidden
+              className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-white"
+              style={{ background: color }}
+            />
+          </div>
         )}
 
         {open && (
@@ -126,8 +147,8 @@ export default function ChatbotWidget() {
               style={{ background: color }}
             >
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20">
-                  <MessageCircle className="h-4 w-4" />
+                <div className="h-9 w-9 overflow-hidden rounded-full bg-white ring-2 ring-white/40">
+                  <img src={arinaAvatar} alt={settings.bot_name} className="h-full w-full object-cover object-top scale-110" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold leading-tight">{settings.bot_name}</p>
