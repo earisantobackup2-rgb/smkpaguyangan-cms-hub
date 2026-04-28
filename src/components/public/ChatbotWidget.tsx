@@ -53,6 +53,12 @@ export default function ChatbotWidget() {
   if (!settings || !settings.is_enabled) return null;
 
   const color = settings.primary_color || "#10b981";
+  const outlineColor = (settings as any).outline_color || color;
+  const avatarSize = (settings as any).avatar_size || 64;
+  const bounceEnabled = (settings as any).bounce_enabled ?? true;
+  const bounceDuration = (settings as any).bounce_duration_s ?? 3;
+  const pingEnabled = (settings as any).ping_enabled ?? true;
+  const pingDuration = (settings as any).ping_duration_s ?? 2.5;
   const positionClass = POSITION_CLASSES[settings.position] || POSITION_CLASSES["bottom-right"];
   const isTop = settings.position?.startsWith("top");
   const isLeft = settings.position?.endsWith("left");
@@ -106,17 +112,26 @@ export default function ChatbotWidget() {
             <button
               onClick={() => setOpen(true)}
               aria-label={`Buka chatbot ${settings.bot_name}`}
-              className="relative flex h-16 w-16 items-center justify-center rounded-full bg-white overflow-hidden transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 animate-bounce-slow"
+              className="relative flex items-center justify-center rounded-full bg-white overflow-hidden transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2"
               style={{
-                border: `3px solid ${color}`,
-                boxShadow: `0 12px 24px -8px rgba(0,0,0,0.35), 0 0 0 4px ${color}22`,
+                width: `${avatarSize}px`,
+                height: `${avatarSize}px`,
+                border: `3px solid ${outlineColor}`,
+                boxShadow: `0 12px 24px -8px rgba(0,0,0,0.35), 0 0 0 4px ${outlineColor}22`,
+                animation: bounceEnabled ? `bounce ${bounceDuration}s ease-in-out infinite` : undefined,
               }}
             >
               {/* Pulsing outline ring */}
-              <span
-                className="absolute -inset-1 rounded-full animate-ping-slow pointer-events-none"
-                style={{ border: `2px solid ${color}`, opacity: 0.6 }}
-              />
+              {pingEnabled && (
+                <span
+                  className="absolute -inset-1 rounded-full pointer-events-none"
+                  style={{
+                    border: `2px solid ${outlineColor}`,
+                    opacity: 0.6,
+                    animation: `ping ${pingDuration}s cubic-bezier(0,0,0.2,1) infinite`,
+                  }}
+                />
+              )}
               <img
                 src={arinaAvatar}
                 alt={settings.bot_name}
