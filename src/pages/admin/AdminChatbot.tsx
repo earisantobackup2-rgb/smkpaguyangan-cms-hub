@@ -268,6 +268,12 @@ export default function AdminChatbot() {
         placeholder_text: setForm.placeholder_text,
         offset_x: setForm.offset_x,
         offset_y: setForm.offset_y,
+        avatar_size: setForm.avatar_size,
+        outline_color: setForm.outline_color,
+        bounce_enabled: setForm.bounce_enabled,
+        bounce_duration_s: setForm.bounce_duration_s,
+        ping_enabled: setForm.ping_enabled,
+        ping_duration_s: setForm.ping_duration_s,
       })
       .eq("id", setForm.id);
     if (error) return toast.error(error.message);
