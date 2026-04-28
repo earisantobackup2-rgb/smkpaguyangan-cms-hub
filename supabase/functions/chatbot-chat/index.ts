@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
 
 ATURAN:
 - Gunakan HANYA informasi dari KNOWLEDGE BASE di bawah ini sebagai sumber utama.
-- Jika informasi tidak tersedia di knowledge base, jawab dengan jujur: "Maaf, saya belum memiliki informasi mengenai hal tersebut. Silakan hubungi pihak sekolah secara langsung."
+- Jika informasi tidak tersedia di knowledge base, JANGAN mengarang. Balas PERSIS dengan token: [[FALLBACK_SEARCH]]
 - Jangan mengarang fakta tentang sekolah, jurusan, atau program.
 - Format jawaban dengan rapi (gunakan list bila perlu).
 
@@ -96,7 +96,47 @@ ${kbText || "(Belum ada knowledge base yang diisi.)"}
     }
 
     const aiData = await aiRes.json();
-    const reply = aiData.choices?.[0]?.message?.content ?? "Maaf, saya tidak dapat menjawab saat ini.";
+    let reply: string = aiData.choices?.[0]?.message?.content ?? "Maaf, saya tidak dapat menjawab saat ini.";
+    let usedFallback = false;
+
+    // Fallback: Google-style AI search via Gemini with web grounding
+    if (reply.includes("[[FALLBACK_SEARCH]]")) {
+      usedFallback = true;
+      try {
+        const searchRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${lovableKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "google/gemini-2.5-flash",
+            messages: [
+              {
+                role: "system",
+                content:
+                  "Anda adalah asisten pencarian web. Jawab pertanyaan pengguna dalam Bahasa Indonesia secara ringkas, akurat, dan sertakan 1-3 sumber tautan jika memungkinkan. Awali jawaban dengan: '🔎 Hasil pencarian web:'.",
+              },
+              { role: "user", content: message },
+            ],
+          }),
+        });
+        if (searchRes.ok) {
+          const sd = await searchRes.json();
+          const searchReply = sd.choices?.[0]?.message?.content;
+          if (searchReply) reply = searchReply;
+          else
+            reply =
+              "Maaf, saya belum memiliki informasi tersebut di knowledge base sekolah. Silakan hubungi pihak sekolah secara langsung.";
+        } else {
+          reply =
+            "Maaf, saya belum memiliki informasi tersebut di knowledge base sekolah. Silakan hubungi pihak sekolah secara langsung.";
+        }
+      } catch (_e) {
+        reply =
+          "Maaf, saya belum memiliki informasi tersebut di knowledge base sekolah. Silakan hubungi pihak sekolah secara langsung.";
+      }
+    }
 
     // Log conversation
     if (sessionId) {
@@ -107,7 +147,7 @@ ${kbText || "(Belum ada knowledge base yang diisi.)"}
       });
     }
 
-    return new Response(JSON.stringify({ reply }), {
+    return new Response(JSON.stringify({ reply, fallback: usedFallback }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
