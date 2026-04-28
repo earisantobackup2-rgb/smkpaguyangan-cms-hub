@@ -88,6 +88,68 @@ export default function AdminChatbot() {
   const [kbDialogOpen, setKbDialogOpen] = useState(false);
   const [kbEditing, setKbEditing] = useState<KB | null>(null);
   const [kbForm, setKbForm] = useState<any>(emptyKB);
+  const [kbSearch, setKbSearch] = useState("");
+  const [kbFilterCat, setKbFilterCat] = useState<string>("all");
+
+  const categories = Array.from(
+    new Set(kbList.map((k) => k.category || "general").filter(Boolean))
+  ).sort();
+
+  const filteredKb = kbList.filter((k) => {
+    if (kbFilterCat !== "all" && (k.category || "general") !== kbFilterCat) return false;
+    if (kbSearch.trim()) {
+      const q = kbSearch.toLowerCase();
+      return (
+        k.title.toLowerCase().includes(q) ||
+        k.content.toLowerCase().includes(q) ||
+        (k.source_url || "").toLowerCase().includes(q)
+      );
+    }
+    return true;
+  });
+
+  // Unique sources
+  const sources = Object.values(
+    kbList.reduce<Record<string, { url: string; count: number; categories: Set<string> }>>(
+      (acc, k) => {
+        if (!k.source_url) return acc;
+        const key = k.source_url;
+        if (!acc[key]) acc[key] = { url: key, count: 0, categories: new Set() };
+        acc[key].count += 1;
+        if (k.category) acc[key].categories.add(k.category);
+        return acc;
+      },
+      {}
+    )
+  ).sort((a, b) => b.count - a.count);
+
+  const deleteBySource = async (url: string) => {
+    if (!confirm(`Hapus semua knowledge dari sumber:\n${url}?`)) return;
+    const { error } = await supabase.from("chatbot_knowledge").delete().eq("source_url", url);
+    if (error) return toast.error(error.message);
+    toast.success("Knowledge dari sumber dihapus");
+    qc.invalidateQueries({ queryKey: ["chatbot-kb"] });
+  };
+
+  const renameCategory = async (oldCat: string) => {
+    const newCat = prompt(`Ubah kategori "${oldCat}" menjadi:`, oldCat);
+    if (!newCat || newCat.trim() === "" || newCat === oldCat) return;
+    const { error } = await supabase
+      .from("chatbot_knowledge")
+      .update({ category: newCat.trim() })
+      .eq("category", oldCat);
+    if (error) return toast.error(error.message);
+    toast.success(`Kategori diubah ke "${newCat}"`);
+    qc.invalidateQueries({ queryKey: ["chatbot-kb"] });
+  };
+
+  const deleteCategory = async (cat: string) => {
+    if (!confirm(`Hapus SEMUA knowledge dengan kategori "${cat}"?`)) return;
+    const { error } = await supabase.from("chatbot_knowledge").delete().eq("category", cat);
+    if (error) return toast.error(error.message);
+    toast.success("Kategori dihapus");
+    qc.invalidateQueries({ queryKey: ["chatbot-kb"] });
+  };
 
   const openKbDialog = (item?: KB) => {
     if (item) {
