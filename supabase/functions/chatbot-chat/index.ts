@@ -6,6 +6,19 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+const SCHOOL_CONTEXT = "SMK Muhammadiyah 1 Paguyangan, Kabupaten Brebes, Jawa Tengah (NPSN 20338410)";
+
+async function callAI(lovableKey: string, model: string, messages: any[], extra: Record<string, unknown> = {}) {
+  return await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${lovableKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ model, messages, ...extra }),
+  });
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
