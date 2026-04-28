@@ -65,6 +65,12 @@ type Settings = {
   placeholder_text: string;
   offset_x: number;
   offset_y: number;
+  avatar_size: number;
+  outline_color: string;
+  bounce_enabled: boolean;
+  bounce_duration_s: number;
+  ping_enabled: boolean;
+  ping_duration_s: number;
 };
 
 const emptyKB = { title: "", content: "", source_url: "", category: "general", is_active: true };
