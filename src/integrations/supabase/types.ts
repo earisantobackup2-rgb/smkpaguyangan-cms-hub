@@ -109,12 +109,18 @@ export type Database = {
       }
       chatbot_settings: {
         Row: {
+          avatar_size: number
           bot_name: string
+          bounce_duration_s: number
+          bounce_enabled: boolean
           created_at: string
           id: string
           is_enabled: boolean
           offset_x: number
           offset_y: number
+          outline_color: string
+          ping_duration_s: number
+          ping_enabled: boolean
           placeholder_text: string
           position: string
           primary_color: string
@@ -122,12 +128,18 @@ export type Database = {
           welcome_message: string
         }
         Insert: {
+          avatar_size?: number
           bot_name?: string
+          bounce_duration_s?: number
+          bounce_enabled?: boolean
           created_at?: string
           id?: string
           is_enabled?: boolean
           offset_x?: number
           offset_y?: number
+          outline_color?: string
+          ping_duration_s?: number
+          ping_enabled?: boolean
           placeholder_text?: string
           position?: string
           primary_color?: string
@@ -135,12 +147,18 @@ export type Database = {
           welcome_message?: string
         }
         Update: {
+          avatar_size?: number
           bot_name?: string
+          bounce_duration_s?: number
+          bounce_enabled?: boolean
           created_at?: string
           id?: string
           is_enabled?: boolean
           offset_x?: number
           offset_y?: number
+          outline_color?: string
+          ping_duration_s?: number
+          ping_enabled?: boolean
           placeholder_text?: string
           position?: string
           primary_color?: string
