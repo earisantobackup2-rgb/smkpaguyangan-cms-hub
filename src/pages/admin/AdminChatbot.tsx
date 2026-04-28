@@ -13,6 +13,10 @@ import {
   MessageSquare,
   Settings as SettingsIcon,
   BookOpen,
+  Tag,
+  Link2,
+  Search,
+  ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
