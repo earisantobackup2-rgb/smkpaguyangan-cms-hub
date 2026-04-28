@@ -654,6 +654,118 @@ export default function AdminChatbot() {
                 />
               </div>
 
+              <div className="border-t pt-4 space-y-4">
+                <h3 className="font-semibold text-sm">Tampilan Avatar Arina</h3>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label>Ukuran Avatar: {setForm.avatar_size}px</Label>
+                    <Input
+                      type="range"
+                      min={40}
+                      max={120}
+                      step={2}
+                      value={setForm.avatar_size}
+                      onChange={(e) => setSetForm({ ...setForm, avatar_size: parseInt(e.target.value) })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Warna Outline</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="color"
+                        value={setForm.outline_color}
+                        onChange={(e) => setSetForm({ ...setForm, outline_color: e.target.value })}
+                        className="w-16 p-1 h-10"
+                      />
+                      <Input
+                        value={setForm.outline_color}
+                        onChange={(e) => setSetForm({ ...setForm, outline_color: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between border rounded-md p-3">
+                  <div>
+                    <p className="text-sm font-medium">Animasi Memantul (Bounce)</p>
+                    <p className="text-xs text-muted-foreground">Avatar bergerak naik-turun perlahan</p>
+                  </div>
+                  <Switch
+                    checked={setForm.bounce_enabled}
+                    onCheckedChange={(v) => setSetForm({ ...setForm, bounce_enabled: v })}
+                  />
+                </div>
+                {setForm.bounce_enabled && (
+                  <div className="space-y-2">
+                    <Label>Kecepatan Bounce: {setForm.bounce_duration_s}s (semakin kecil, semakin cepat)</Label>
+                    <Input
+                      type="range"
+                      min={0.5}
+                      max={6}
+                      step={0.1}
+                      value={setForm.bounce_duration_s}
+                      onChange={(e) => setSetForm({ ...setForm, bounce_duration_s: parseFloat(e.target.value) })}
+                    />
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between border rounded-md p-3">
+                  <div>
+                    <p className="text-sm font-medium">Animasi Denyut (Ping)</p>
+                    <p className="text-xs text-muted-foreground">Cincin pulsing di sekitar avatar</p>
+                  </div>
+                  <Switch
+                    checked={setForm.ping_enabled}
+                    onCheckedChange={(v) => setSetForm({ ...setForm, ping_enabled: v })}
+                  />
+                </div>
+                {setForm.ping_enabled && (
+                  <div className="space-y-2">
+                    <Label>Kecepatan Ping: {setForm.ping_duration_s}s</Label>
+                    <Input
+                      type="range"
+                      min={0.5}
+                      max={6}
+                      step={0.1}
+                      value={setForm.ping_duration_s}
+                      onChange={(e) => setSetForm({ ...setForm, ping_duration_s: parseFloat(e.target.value) })}
+                    />
+                  </div>
+                )}
+
+                {/* Live preview */}
+                <div className="rounded-md border bg-muted/30 p-6 flex items-center justify-center">
+                  <div className="relative">
+                    <button
+                      type="button"
+                      className="relative flex items-center justify-center rounded-full bg-white overflow-hidden"
+                      style={{
+                        width: `${setForm.avatar_size}px`,
+                        height: `${setForm.avatar_size}px`,
+                        border: `3px solid ${setForm.outline_color}`,
+                        boxShadow: `0 12px 24px -8px rgba(0,0,0,0.35), 0 0 0 4px ${setForm.outline_color}22`,
+                        animation: setForm.bounce_enabled
+                          ? `bounce ${setForm.bounce_duration_s}s ease-in-out infinite`
+                          : "none",
+                      }}
+                    >
+                      {setForm.ping_enabled && (
+                        <span
+                          className="absolute -inset-1 rounded-full pointer-events-none"
+                          style={{
+                            border: `2px solid ${setForm.outline_color}`,
+                            opacity: 0.6,
+                            animation: `ping ${setForm.ping_duration_s}s cubic-bezier(0,0,0.2,1) infinite`,
+                          }}
+                        />
+                      )}
+                      <img src="/src/assets/arina-chatbot.png" alt="preview" className="h-full w-full object-cover object-top scale-110" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
               <Button onClick={saveSettings} className="w-full">
                 <Save className="mr-2 h-4 w-4" /> Simpan Pengaturan
               </Button>
