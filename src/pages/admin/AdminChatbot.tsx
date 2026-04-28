@@ -299,9 +299,15 @@ export default function AdminChatbot() {
       </div>
 
       <Tabs defaultValue="knowledge" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6">
           <TabsTrigger value="knowledge" className="gap-2">
             <BookOpen className="h-4 w-4" /> <span className="hidden sm:inline">Knowledge</span>
+          </TabsTrigger>
+          <TabsTrigger value="categories" className="gap-2">
+            <Tag className="h-4 w-4" /> <span className="hidden sm:inline">Kategori</span>
+          </TabsTrigger>
+          <TabsTrigger value="sources" className="gap-2">
+            <Link2 className="h-4 w-4" /> <span className="hidden sm:inline">Sumber</span>
           </TabsTrigger>
           <TabsTrigger value="crawl" className="gap-2">
             <Globe className="h-4 w-4" /> <span className="hidden sm:inline">Crawl</span>
@@ -316,14 +322,40 @@ export default function AdminChatbot() {
 
         {/* KNOWLEDGE */}
         <TabsContent value="knowledge" className="space-y-3">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">{kbList.length} entri knowledge</p>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-muted-foreground">
+              {filteredKb.length} dari {kbList.length} entri
+            </p>
             <Button onClick={() => openKbDialog()} size="sm">
               <Plus className="mr-1 h-4 w-4" /> Tambah
             </Button>
           </div>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <div className="relative flex-1">
+              <Search className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={kbSearch}
+                onChange={(e) => setKbSearch(e.target.value)}
+                placeholder="Cari judul, konten, atau URL..."
+                className="pl-8"
+              />
+            </div>
+            <Select value={kbFilterCat} onValueChange={setKbFilterCat}>
+              <SelectTrigger className="sm:w-48">
+                <SelectValue placeholder="Semua kategori" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Semua kategori</SelectItem>
+                {categories.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {c}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <div className="space-y-2">
-            {kbList.map((item) => (
+            {filteredKb.map((item) => (
               <Card key={item.id} className="p-3">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
