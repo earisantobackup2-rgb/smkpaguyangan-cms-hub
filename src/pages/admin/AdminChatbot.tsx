@@ -404,6 +404,104 @@ export default function AdminChatbot() {
           </div>
         </TabsContent>
 
+        {/* CATEGORIES */}
+        <TabsContent value="categories" className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            {categories.length} kategori terdaftar. Klik nama kategori untuk memfilter entri.
+          </p>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {categories.map((cat) => {
+              const count = kbList.filter((k) => (k.category || "general") === cat).length;
+              return (
+                <Card key={cat} className="p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <button
+                      className="flex min-w-0 flex-1 items-center gap-2 text-left"
+                      onClick={() => {
+                        setKbFilterCat(cat);
+                        toast.info(`Filter diterapkan: ${cat}`);
+                      }}
+                    >
+                      <Tag className="h-4 w-4 shrink-0 text-primary" />
+                      <span className="truncate font-medium text-sm">{cat}</span>
+                      <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[10px]">
+                        {count}
+                      </span>
+                    </button>
+                    <div className="flex shrink-0 items-center gap-1">
+                      <Button size="icon" variant="ghost" onClick={() => renameCategory(cat)}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => deleteCategory(cat)}
+                        className="text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              );
+            })}
+            {categories.length === 0 && (
+              <p className="col-span-full rounded-md border border-dashed p-8 text-center text-sm text-muted-foreground">
+                Belum ada kategori.
+              </p>
+            )}
+          </div>
+        </TabsContent>
+
+        {/* SOURCES */}
+        <TabsContent value="sources" className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            {sources.length} sumber URL dari hasil crawl & entri manual.
+          </p>
+          <div className="space-y-2">
+            {sources.map((s) => (
+              <Card key={s.url} className="p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <a
+                      href={s.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+                    >
+                      <span className="truncate">{s.url}</span>
+                      <ExternalLink className="h-3 w-3 shrink-0" />
+                    </a>
+                    <div className="mt-1 flex flex-wrap items-center gap-1 text-[10px] text-muted-foreground">
+                      <span className="rounded-full bg-muted px-2 py-0.5">
+                        {s.count} entri
+                      </span>
+                      {Array.from(s.categories).map((c) => (
+                        <span key={c} className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">
+                          {c}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => deleteBySource(s.url)}
+                    className="text-destructive shrink-0"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </Card>
+            ))}
+            {sources.length === 0 && (
+              <p className="rounded-md border border-dashed p-8 text-center text-sm text-muted-foreground">
+                Belum ada sumber URL. Lakukan crawl untuk menambahkannya.
+              </p>
+            )}
+          </div>
+        </TabsContent>
+
         {/* CRAWL */}
         <TabsContent value="crawl">
           <Card className="p-4 space-y-4 max-w-2xl">
