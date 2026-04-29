@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Newspaper, Trophy, Handshake, FileText, School, LogOut, LayoutDashboard, GraduationCap, Camera, MessageSquare, MenuIcon, ImageIcon, LayoutGrid, X, Bot, Users } from "lucide-react";
+import { Newspaper, Trophy, Handshake, FileText, School, LogOut, LayoutDashboard, GraduationCap, Camera, MessageSquare, MenuIcon, ImageIcon, LayoutGrid, X, Bot, Users, HelpCircle } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import AdminTour, { shouldAutoStartTour, resetTour } from "@/components/admin/AdminTour";
 
 const sidebarLinks = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -23,9 +24,9 @@ const sidebarLinks = [
   { label: "Kelola Pengguna", href: "/admin/users", icon: Users },
 ];
 
-function SidebarContent({ location, unreadCount, onNavigate }: { location: ReturnType<typeof useLocation>; unreadCount: number; onNavigate?: () => void }) {
+function SidebarContent({ location, unreadCount, onNavigate, onStartTour }: { location: ReturnType<typeof useLocation>; unreadCount: number; onNavigate?: () => void; onStartTour: () => void }) {
   return (
-    <>
+    <div data-tour="sidebar" className="flex flex-col h-full">
       <div className="p-4 border-b">
         <Link to="/admin" className="flex items-center gap-2" onClick={onNavigate}>
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary font-heading text-sm font-bold text-primary-foreground">M</div>
@@ -40,6 +41,7 @@ function SidebarContent({ location, unreadCount, onNavigate }: { location: Retur
           <Link
             key={href}
             to={href}
+            data-tour={`nav-${href}`}
             onClick={onNavigate}
             className={`flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors ${
               location.pathname === href
@@ -57,7 +59,15 @@ function SidebarContent({ location, unreadCount, onNavigate }: { location: Retur
           </Link>
         ))}
       </nav>
-      <div className="p-3 border-t">
+      <div className="p-3 border-t space-y-1">
+        <button
+          data-tour="tour-button"
+          onClick={() => { onStartTour(); onNavigate?.(); }}
+          className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-primary rounded-md w-full transition-colors"
+        >
+          <HelpCircle className="h-4 w-4" />
+          Bantuan / Tour
+        </button>
         <button
           onClick={() => supabase.auth.signOut()}
           className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-destructive rounded-md w-full transition-colors"
@@ -66,13 +76,14 @@ function SidebarContent({ location, unreadCount, onNavigate }: { location: Retur
           Keluar
         </button>
       </div>
-    </>
+    </div>
   );
 }
 
 export default function AdminLayout() {
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [tourRun, setTourRun] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
@@ -94,12 +105,21 @@ export default function AdminLayout() {
     supabase.auth.getSession().then(({ data }) => {
       if (!data.session) navigate("/admin/login");
       setLoading(false);
+      if (data.session && shouldAutoStartTour() && !isMobile) {
+        setTimeout(() => setTourRun(true), 800);
+      }
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!session) navigate("/admin/login");
     });
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, isMobile]);
+
+  const startTour = () => {
+    resetTour();
+    setTourRun(false);
+    setTimeout(() => setTourRun(true), 100);
+  };
 
   if (loading) return <div className="flex min-h-screen items-center justify-center text-muted-foreground">Memuat...</div>;
 
@@ -108,7 +128,7 @@ export default function AdminLayout() {
       {/* Desktop Sidebar */}
       {!isMobile && (
         <aside className="w-64 bg-secondary border-r flex flex-col shrink-0 sticky top-0 h-screen">
-          <SidebarContent location={location} unreadCount={unreadCount} />
+          <SidebarContent location={location} unreadCount={unreadCount} onStartTour={startTour} />
         </aside>
       )}
 
@@ -117,7 +137,7 @@ export default function AdminLayout() {
         <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
           <SheetContent side="left" className="p-0 w-72 flex flex-col">
             <SheetTitle className="sr-only">Menu Navigasi</SheetTitle>
-            <SidebarContent location={location} unreadCount={unreadCount} onNavigate={() => setSidebarOpen(false)} />
+            <SidebarContent location={location} unreadCount={unreadCount} onNavigate={() => setSidebarOpen(false)} onStartTour={startTour} />
           </SheetContent>
         </Sheet>
       )}
@@ -148,6 +168,7 @@ export default function AdminLayout() {
           <Outlet />
         </main>
       </div>
+      <AdminTour run={tourRun} onClose={() => setTourRun(false)} />
     </div>
   );
 }
