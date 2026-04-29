@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import Joyride, { CallBackProps, STATUS, Step } from "react-joyride";
+import { Joyride, STATUS, type EventData, type Step } from "react-joyride";
 
 const STORAGE_KEY = "admin_tour_completed_v1";
 
@@ -9,7 +8,6 @@ const steps: Step[] = [
     title: "Selamat datang di CMS Admin 👋",
     content: "Ini panel admin SMK Muhammadiyah 1 Paguyangan. Tour singkat ini akan memandu Anda mengenal setiap menu. Tekan Next untuk mulai.",
     placement: "right",
-    disableBeacon: true,
   },
   { target: '[data-tour="nav-/admin"]', title: "Dashboard", content: "Ringkasan statistik website: jumlah berita, pesan masuk, kunjungan, dll.", placement: "right" },
   { target: '[data-tour="nav-/admin/slides"]', title: "Slide Hero", content: "Kelola slideshow utama di halaman beranda website.", placement: "right" },
@@ -34,7 +32,7 @@ const steps: Step[] = [
 ];
 
 export default function AdminTour({ run, onClose }: { run: boolean; onClose: () => void }) {
-  const handleCallback = (data: CallBackProps) => {
+  const handleCallback = (data: EventData) => {
     const { status } = data;
     if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
       localStorage.setItem(STORAGE_KEY, "1");
@@ -49,8 +47,6 @@ export default function AdminTour({ run, onClose }: { run: boolean; onClose: () 
       continuous
       showSkipButton
       showProgress
-      scrollToFirstStep
-      disableScrolling={false}
       callback={handleCallback}
       locale={{ back: "Kembali", close: "Tutup", last: "Selesai", next: "Lanjut", skip: "Lewati", open: "Buka tour" }}
       styles={{
