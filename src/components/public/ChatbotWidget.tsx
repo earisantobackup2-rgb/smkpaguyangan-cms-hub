@@ -57,6 +57,8 @@ export default function ChatbotWidget() {
   const avatarSize = (settings as any).avatar_size || 64;
   const pingEnabled = (settings as any).ping_enabled ?? true;
   const pingDuration = (settings as any).ping_duration_s ?? 2.5;
+  const bounceEnabled = (settings as any).bounce_enabled ?? true;
+  const bounceDuration = (settings as any).bounce_duration_s ?? 2.5;
   const positionClass = POSITION_CLASSES[settings.position] || POSITION_CLASSES["bottom-right"];
   const isTop = settings.position?.startsWith("top");
   const isLeft = settings.position?.endsWith("left");
@@ -100,7 +102,14 @@ export default function ChatbotWidget() {
         }}
       >
         {!open && (
-          <div className="pointer-events-auto relative">
+          <div
+            className="pointer-events-auto relative"
+            style={
+              bounceEnabled
+                ? { animation: `arina-bounce ${bounceDuration}s ease-in-out infinite` }
+                : undefined
+            }
+          >
             <button
               onClick={() => setOpen(true)}
               aria-label={`Buka chatbot ${settings.bot_name}`}
@@ -109,7 +118,7 @@ export default function ChatbotWidget() {
                 width: `${avatarSize}px`,
                 height: `${avatarSize}px`,
                 border: `3px solid ${outlineColor}`,
-                boxShadow: 'none',
+                boxShadow: `0 10px 15px -3px ${outlineColor}55, 0 4px 6px -4px ${outlineColor}44`,
               }}
             >
               {/* Pulsing outline ring */}
@@ -135,6 +144,21 @@ export default function ChatbotWidget() {
               aria-hidden
               className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-2 border-white"
               style={{ background: color }}
+            />
+            {/* Ground shadow */}
+            <span
+              aria-hidden
+              className="absolute left-1/2 -translate-x-1/2 rounded-[50%] pointer-events-none"
+              style={{
+                bottom: `-${Math.round(avatarSize * 0.18)}px`,
+                width: `${Math.round(avatarSize * 0.7)}px`,
+                height: `${Math.round(avatarSize * 0.12)}px`,
+                background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 70%)',
+                animation: bounceEnabled
+                  ? `arina-shadow ${bounceDuration}s ease-in-out infinite`
+                  : undefined,
+                filter: 'blur(2px)',
+              }}
             />
           </div>
         )}
