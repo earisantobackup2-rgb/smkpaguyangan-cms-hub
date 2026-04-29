@@ -48,19 +48,17 @@ export default function AdminTour({ run, onClose }: { run: boolean; onClose: () 
       showSkipButton
       showProgress
       callback={handleCallback}
+      primaryColor="hsl(var(--primary))"
+      textColor="hsl(var(--foreground))"
+      backgroundColor="hsl(var(--background))"
+      arrowColor="hsl(var(--background))"
+      overlayColor="rgba(0,0,0,0.55)"
+      zIndex={10000}
       locale={{ back: "Kembali", close: "Tutup", last: "Selesai", next: "Lanjut", skip: "Lewati", open: "Buka tour" }}
       styles={{
-        options: {
-          primaryColor: "hsl(var(--primary))",
-          textColor: "hsl(var(--foreground))",
-          backgroundColor: "hsl(var(--background))",
-          arrowColor: "hsl(var(--background))",
-          overlayColor: "rgba(0,0,0,0.55)",
-          zIndex: 10000,
-        },
         tooltip: { borderRadius: 12, fontFamily: "Inter, sans-serif" },
         tooltipTitle: { fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: 16, fontWeight: 700 },
-        buttonNext: { borderRadius: 8, fontWeight: 600 },
+        buttonPrimary: { borderRadius: 8, fontWeight: 600 },
         buttonBack: { color: "hsl(var(--muted-foreground))" },
       }}
     />
