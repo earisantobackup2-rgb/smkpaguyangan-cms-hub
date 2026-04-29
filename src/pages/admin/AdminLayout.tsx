@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
-import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
+import { Outlet, Link, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Newspaper, Trophy, Handshake, FileText, School, LogOut, LayoutDashboard, GraduationCap, Camera, MessageSquare, MenuIcon, ImageIcon, LayoutGrid, X, Bot, Users, HelpCircle } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import AdminTour, { shouldAutoStartTour, resetTour } from "@/components/admin/AdminTour";
+import { useUserRole, type AppRole } from "@/hooks/useUserRole";
 
-const sidebarLinks = [
+type SidebarLink = { label: string; href: string; icon: any; badge?: boolean; adminOnly?: boolean };
+
+const allSidebarLinks: SidebarLink[] = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { label: "Slide Hero", href: "/admin/slides", icon: ImageIcon },
+  { label: "Slide Hero", href: "/admin/slides", icon: ImageIcon, adminOnly: false },
   { label: "Jurusan & Keahlian", href: "/admin/jurusan", icon: GraduationCap },
   { label: "Berita & Pengumuman", href: "/admin/berita", icon: Newspaper },
   { label: "Prestasi", href: "/admin/prestasi", icon: Trophy },
@@ -24,7 +27,16 @@ const sidebarLinks = [
   { label: "Kelola Pengguna", href: "/admin/users", icon: Users },
 ];
 
-function SidebarContent({ location, unreadCount, onNavigate, onStartTour }: { location: ReturnType<typeof useLocation>; unreadCount: number; onNavigate?: () => void; onStartTour: () => void }) {
+// Routes accessible by 'admin' role (limited). All others are administrator-only.
+const ADMIN_ALLOWED_HREFS = new Set(["/admin", "/admin/berita", "/admin/prestasi"]);
+
+function getLinksForRole(role: AppRole): SidebarLink[] {
+  if (role === "administrator") return allSidebarLinks;
+  if (role === "admin") return allSidebarLinks.filter((l) => ADMIN_ALLOWED_HREFS.has(l.href));
+  return [];
+}
+
+function SidebarContent({ location, unreadCount, onNavigate, onStartTour, links }: { location: ReturnType<typeof useLocation>; unreadCount: number; onNavigate?: () => void; onStartTour: () => void; links: SidebarLink[] }) {
   return (
     <div data-tour="sidebar" className="flex flex-col h-full">
       <div className="p-4 border-b">
@@ -37,7 +49,7 @@ function SidebarContent({ location, unreadCount, onNavigate, onStartTour }: { lo
         </Link>
       </div>
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-        {sidebarLinks.map(({ label, href, icon: Icon, badge }) => (
+        {links.map(({ label, href, icon: Icon, badge }) => (
           <Link
             key={href}
             to={href}
@@ -87,6 +99,7 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
+  const { role, loading: roleLoading } = useUserRole();
 
   const { data: unreadCount = 0 } = useQuery({
     queryKey: ["unread-messages-count"],
@@ -99,6 +112,7 @@ export default function AdminLayout() {
       return count || 0;
     },
     refetchInterval: 30000,
+    enabled: role === "administrator",
   });
 
   useEffect(() => {
@@ -121,14 +135,32 @@ export default function AdminLayout() {
     setTimeout(() => setTourRun(true), 100);
   };
 
-  if (loading) return <div className="flex min-h-screen items-center justify-center text-muted-foreground">Memuat...</div>;
+  if (loading || roleLoading) return <div className="flex min-h-screen items-center justify-center text-muted-foreground">Memuat...</div>;
+
+  // Route guard: 'admin' role can only access ADMIN_ALLOWED_HREFS
+  if (role === "admin" && !ADMIN_ALLOWED_HREFS.has(location.pathname)) {
+    return <Navigate to="/admin" replace />;
+  }
+  if (!role) {
+    return (
+      <div className="flex min-h-screen items-center justify-center p-6 text-center">
+        <div>
+          <p className="text-lg font-semibold mb-2">Akses ditolak</p>
+          <p className="text-sm text-muted-foreground mb-4">Akun Anda tidak memiliki peran yang diizinkan.</p>
+          <button onClick={() => supabase.auth.signOut()} className="text-sm underline text-primary">Keluar</button>
+        </div>
+      </div>
+    );
+  }
+
+  const links = getLinksForRole(role);
 
   return (
     <div className="flex min-h-screen">
       {/* Desktop Sidebar */}
       {!isMobile && (
         <aside className="w-64 bg-secondary border-r flex flex-col shrink-0 sticky top-0 h-screen">
-          <SidebarContent location={location} unreadCount={unreadCount} onStartTour={startTour} />
+          <SidebarContent location={location} unreadCount={unreadCount} onStartTour={startTour} links={links} />
         </aside>
       )}
 
@@ -137,7 +169,7 @@ export default function AdminLayout() {
         <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
           <SheetContent side="left" className="p-0 w-72 flex flex-col">
             <SheetTitle className="sr-only">Menu Navigasi</SheetTitle>
-            <SidebarContent location={location} unreadCount={unreadCount} onNavigate={() => setSidebarOpen(false)} onStartTour={startTour} />
+            <SidebarContent location={location} unreadCount={unreadCount} onNavigate={() => setSidebarOpen(false)} onStartTour={startTour} links={links} />
           </SheetContent>
         </Sheet>
       )}
