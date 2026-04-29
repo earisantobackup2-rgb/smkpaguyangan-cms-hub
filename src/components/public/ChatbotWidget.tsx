@@ -55,8 +55,6 @@ export default function ChatbotWidget() {
   const color = settings.primary_color || "#10b981";
   const outlineColor = (settings as any).outline_color || color;
   const avatarSize = (settings as any).avatar_size || 64;
-  const bounceEnabled = (settings as any).bounce_enabled ?? true;
-  const bounceDuration = (settings as any).bounce_duration_s ?? 3;
   const pingEnabled = (settings as any).ping_enabled ?? true;
   const pingDuration = (settings as any).ping_duration_s ?? 2.5;
   const positionClass = POSITION_CLASSES[settings.position] || POSITION_CLASSES["bottom-right"];
@@ -103,12 +101,6 @@ export default function ChatbotWidget() {
       >
         {!open && (
           <div className="pointer-events-auto relative">
-            {/* Drop shadow under the circle */}
-            <span
-              aria-hidden
-              className="absolute left-1/2 -translate-x-1/2 -bottom-3 h-3 w-14 rounded-[50%] blur-md opacity-40"
-              style={{ background: "rgba(0,0,0,0.55)" }}
-            />
             <button
               onClick={() => setOpen(true)}
               aria-label={`Buka chatbot ${settings.bot_name}`}
@@ -117,8 +109,7 @@ export default function ChatbotWidget() {
                 width: `${avatarSize}px`,
                 height: `${avatarSize}px`,
                 border: `3px solid ${outlineColor}`,
-                boxShadow: `0 12px 24px -8px rgba(0,0,0,0.35), 0 0 0 4px ${outlineColor}22`,
-                animation: bounceEnabled ? `bounce ${bounceDuration}s ease-in-out infinite` : undefined,
+                boxShadow: `0 0 0 4px ${outlineColor}22`,
               }}
             >
               {/* Pulsing outline ring */}
