@@ -109,7 +109,7 @@ export default function ChatbotWidget() {
                 width: `${avatarSize}px`,
                 height: `${avatarSize}px`,
                 border: `3px solid ${outlineColor}`,
-                boxShadow: `0 0 0 4px ${outlineColor}22`,
+                boxShadow: 'none',
               }}
             >
               {/* Pulsing outline ring */}
