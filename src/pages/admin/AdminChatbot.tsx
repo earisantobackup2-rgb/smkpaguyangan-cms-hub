@@ -686,6 +686,45 @@ export default function AdminChatbot() {
               <div className="border-t pt-4 space-y-4">
                 <h3 className="font-semibold text-sm">Tampilan Avatar Arina</h3>
 
+                <div className="space-y-2">
+                  <Label>Gambar Avatar</Label>
+                  <div className="flex items-center gap-3">
+                    <div className="h-16 w-16 shrink-0 overflow-hidden rounded-full border bg-muted">
+                      <img
+                        src={setForm.avatar_url || "/src/assets/arina-chatbot.png"}
+                        alt="avatar"
+                        className="h-full w-full object-cover object-top"
+                      />
+                    </div>
+                    <div className="flex flex-1 flex-col gap-2">
+                      <label className="inline-flex w-fit items-center gap-2 rounded-md border bg-background px-3 py-2 text-xs font-medium cursor-pointer hover:bg-muted">
+                        {uploadingAvatar ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
+                        {uploadingAvatar ? "Mengunggah..." : "Pilih gambar"}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            if (f) handleAvatarUpload(f);
+                            e.target.value = "";
+                          }}
+                        />
+                      </label>
+                      {setForm.avatar_url && (
+                        <button
+                          type="button"
+                          onClick={() => setSetForm({ ...setForm, avatar_url: null })}
+                          className="inline-flex w-fit items-center gap-1 text-xs text-destructive hover:underline"
+                        >
+                          <XIcon className="h-3 w-3" /> Gunakan default
+                        </button>
+                      )}
+                      <p className="text-[11px] text-muted-foreground">Disarankan rasio 1:1, maks 5MB.</p>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label>Ukuran Avatar: {setForm.avatar_size}px</Label>
@@ -789,7 +828,11 @@ export default function AdminChatbot() {
                           }}
                         />
                       )}
-                      <img src="/src/assets/arina-chatbot.png" alt="preview" className="h-full w-full object-cover object-top scale-110" />
+                      <img
+                        src={setForm.avatar_url || "/src/assets/arina-chatbot.png"}
+                        alt="preview"
+                        className="h-full w-full object-cover object-top scale-110"
+                      />
                     </button>
                   </div>
                 </div>
