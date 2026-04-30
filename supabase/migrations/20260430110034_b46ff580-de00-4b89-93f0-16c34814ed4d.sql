@@ -1,0 +1,1 @@
+ALTER TABLE public.chatbot_settings ADD COLUMN IF NOT EXISTS avatar_url text;

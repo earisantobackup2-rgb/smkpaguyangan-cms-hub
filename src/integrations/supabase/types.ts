@@ -110,6 +110,7 @@ export type Database = {
       chatbot_settings: {
         Row: {
           avatar_size: number
+          avatar_url: string | null
           bot_name: string
           bounce_duration_s: number
           bounce_enabled: boolean
@@ -129,6 +130,7 @@ export type Database = {
         }
         Insert: {
           avatar_size?: number
+          avatar_url?: string | null
           bot_name?: string
           bounce_duration_s?: number
           bounce_enabled?: boolean
@@ -148,6 +150,7 @@ export type Database = {
         }
         Update: {
           avatar_size?: number
+          avatar_url?: string | null
           bot_name?: string
           bounce_duration_s?: number
           bounce_enabled?: boolean
