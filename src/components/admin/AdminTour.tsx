@@ -64,6 +64,8 @@ export default function AdminTour({ run, onClose }: { run: boolean; onClose: () 
         zIndex: 10000,
         showProgress: true,
         skipBeacon: true,
+        buttons: ["back", "skip", "primary"],
+        closeButtonAction: "skip",
       }}
     />
   );

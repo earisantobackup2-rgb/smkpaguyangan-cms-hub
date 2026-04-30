@@ -17,6 +17,8 @@ import {
   Link2,
   Search,
   ExternalLink,
+  Upload,
+  X as XIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -66,6 +68,7 @@ type Settings = {
   offset_x: number;
   offset_y: number;
   avatar_size: number;
+  avatar_url: string | null;
   outline_color: string;
   bounce_enabled: boolean;
   bounce_duration_s: number;
@@ -269,6 +272,7 @@ export default function AdminChatbot() {
         offset_x: setForm.offset_x,
         offset_y: setForm.offset_y,
         avatar_size: setForm.avatar_size,
+        avatar_url: setForm.avatar_url,
         outline_color: setForm.outline_color,
         bounce_enabled: setForm.bounce_enabled,
         bounce_duration_s: setForm.bounce_duration_s,
@@ -280,6 +284,31 @@ export default function AdminChatbot() {
     toast.success("Pengaturan disimpan");
     qc.invalidateQueries({ queryKey: ["chatbot-settings-admin"] });
     qc.invalidateQueries({ queryKey: ["chatbot-settings"] });
+  };
+
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const handleAvatarUpload = async (file: File) => {
+    if (!setForm) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Ukuran maksimal 5MB");
+      return;
+    }
+    setUploadingAvatar(true);
+    try {
+      const ext = file.name.split(".").pop() || "png";
+      const path = `chatbot/avatar-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("uploads")
+        .upload(path, file, { upsert: true, contentType: file.type });
+      if (upErr) throw upErr;
+      const { data } = supabase.storage.from("uploads").getPublicUrl(path);
+      setSetForm({ ...setForm, avatar_url: data.publicUrl });
+      toast.success("Avatar diunggah. Klik Simpan untuk menerapkan.");
+    } catch (e: any) {
+      toast.error("Gagal unggah: " + (e.message || e));
+    } finally {
+      setUploadingAvatar(false);
+    }
   };
 
   /* ============ CONVERSATIONS ============ */
@@ -657,6 +686,45 @@ export default function AdminChatbot() {
               <div className="border-t pt-4 space-y-4">
                 <h3 className="font-semibold text-sm">Tampilan Avatar Arina</h3>
 
+                <div className="space-y-2">
+                  <Label>Gambar Avatar</Label>
+                  <div className="flex items-center gap-3">
+                    <div className="h-16 w-16 shrink-0 overflow-hidden rounded-full border bg-muted">
+                      <img
+                        src={setForm.avatar_url || "/src/assets/arina-chatbot.png"}
+                        alt="avatar"
+                        className="h-full w-full object-cover object-top"
+                      />
+                    </div>
+                    <div className="flex flex-1 flex-col gap-2">
+                      <label className="inline-flex w-fit items-center gap-2 rounded-md border bg-background px-3 py-2 text-xs font-medium cursor-pointer hover:bg-muted">
+                        {uploadingAvatar ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />}
+                        {uploadingAvatar ? "Mengunggah..." : "Pilih gambar"}
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            if (f) handleAvatarUpload(f);
+                            e.target.value = "";
+                          }}
+                        />
+                      </label>
+                      {setForm.avatar_url && (
+                        <button
+                          type="button"
+                          onClick={() => setSetForm({ ...setForm, avatar_url: null })}
+                          className="inline-flex w-fit items-center gap-1 text-xs text-destructive hover:underline"
+                        >
+                          <XIcon className="h-3 w-3" /> Gunakan default
+                        </button>
+                      )}
+                      <p className="text-[11px] text-muted-foreground">Disarankan rasio 1:1, maks 5MB.</p>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label>Ukuran Avatar: {setForm.avatar_size}px</Label>
@@ -760,7 +828,11 @@ export default function AdminChatbot() {
                           }}
                         />
                       )}
-                      <img src="/src/assets/arina-chatbot.png" alt="preview" className="h-full w-full object-cover object-top scale-110" />
+                      <img
+                        src={setForm.avatar_url || "/src/assets/arina-chatbot.png"}
+                        alt="preview"
+                        className="h-full w-full object-cover object-top scale-110"
+                      />
                     </button>
                   </div>
                 </div>

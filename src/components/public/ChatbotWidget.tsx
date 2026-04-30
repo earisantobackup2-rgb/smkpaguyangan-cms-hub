@@ -133,7 +133,7 @@ export default function ChatbotWidget() {
                 />
               )}
               <img
-                src={arinaAvatar}
+                src={(settings as any).avatar_url || arinaAvatar}
                 alt={settings.bot_name}
                 className="h-full w-full object-cover object-top scale-110"
                 draggable={false}
@@ -178,7 +178,7 @@ export default function ChatbotWidget() {
             >
               <div className="flex items-center gap-2">
                 <div className="h-9 w-9 overflow-hidden rounded-full bg-white ring-2 ring-white/40">
-                  <img src={arinaAvatar} alt={settings.bot_name} className="h-full w-full object-cover object-top scale-110" />
+                  <img src={(settings as any).avatar_url || arinaAvatar} alt={settings.bot_name} className="h-full w-full object-cover object-top scale-110" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold leading-tight">{settings.bot_name}</p>
