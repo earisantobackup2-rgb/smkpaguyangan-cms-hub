@@ -17,6 +17,8 @@ import {
   Link2,
   Search,
   ExternalLink,
+  Upload,
+  X as XIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -66,6 +68,7 @@ type Settings = {
   offset_x: number;
   offset_y: number;
   avatar_size: number;
+  avatar_url: string | null;
   outline_color: string;
   bounce_enabled: boolean;
   bounce_duration_s: number;
@@ -269,6 +272,7 @@ export default function AdminChatbot() {
         offset_x: setForm.offset_x,
         offset_y: setForm.offset_y,
         avatar_size: setForm.avatar_size,
+        avatar_url: setForm.avatar_url,
         outline_color: setForm.outline_color,
         bounce_enabled: setForm.bounce_enabled,
         bounce_duration_s: setForm.bounce_duration_s,
@@ -280,6 +284,31 @@ export default function AdminChatbot() {
     toast.success("Pengaturan disimpan");
     qc.invalidateQueries({ queryKey: ["chatbot-settings-admin"] });
     qc.invalidateQueries({ queryKey: ["chatbot-settings"] });
+  };
+
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const handleAvatarUpload = async (file: File) => {
+    if (!setForm) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Ukuran maksimal 5MB");
+      return;
+    }
+    setUploadingAvatar(true);
+    try {
+      const ext = file.name.split(".").pop() || "png";
+      const path = `chatbot/avatar-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("uploads")
+        .upload(path, file, { upsert: true, contentType: file.type });
+      if (upErr) throw upErr;
+      const { data } = supabase.storage.from("uploads").getPublicUrl(path);
+      setSetForm({ ...setForm, avatar_url: data.publicUrl });
+      toast.success("Avatar diunggah. Klik Simpan untuk menerapkan.");
+    } catch (e: any) {
+      toast.error("Gagal unggah: " + (e.message || e));
+    } finally {
+      setUploadingAvatar(false);
+    }
   };
 
   /* ============ CONVERSATIONS ============ */
