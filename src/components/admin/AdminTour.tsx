@@ -46,6 +46,7 @@ export default function AdminTour({ run, onClose }: { run: boolean; onClose: () 
       steps={steps}
       run={run}
       continuous
+      showSkipButton
       onEvent={handleEvent}
       locale={{
         back: "Kembali",
