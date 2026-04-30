@@ -63,8 +63,9 @@ export default function AdminTour({ run, onClose }: { run: boolean; onClose: () 
         overlayColor: "rgba(0,0,0,0.55)",
         zIndex: 10000,
         showProgress: true,
-        showSkipButton: true,
         skipBeacon: true,
+        buttons: ["back", "skip", "primary"],
+        closeButtonAction: "skip",
       }}
     />
   );
