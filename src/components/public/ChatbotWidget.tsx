@@ -9,6 +9,39 @@ import arinaAvatar from "@/assets/arina-chatbot.png";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
+const DAILY_LIMIT = 10;
+
+function getTodayKey() {
+  const d = new Date();
+  return `chatbot_quota_${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+}
+
+function getTodayCount() {
+  try {
+    return parseInt(localStorage.getItem(getTodayKey()) || "0", 10) || 0;
+  } catch {
+    return 0;
+  }
+}
+
+function incrementTodayCount() {
+  try {
+    const key = getTodayKey();
+    const next = getTodayCount() + 1;
+    localStorage.setItem(key, String(next));
+    // Cleanup older quota keys
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith("chatbot_quota_") && k !== key) {
+        localStorage.removeItem(k);
+      }
+    }
+    return next;
+  } catch {
+    return 0;
+  }
+}
+
 function getSessionId() {
   let id = sessionStorage.getItem("chatbot_session");
   if (!id) {
@@ -30,6 +63,7 @@ export default function ChatbotWidget() {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Msg[]>([]);
   const [loading, setLoading] = useState(false);
+  const [usedCount, setUsedCount] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const { data: settings } = useQuery({
@@ -45,6 +79,10 @@ export default function ChatbotWidget() {
       setMessages([{ role: "assistant", content: settings.welcome_message }]);
     }
   }, [open, settings, messages.length]);
+
+  useEffect(() => {
+    if (open) setUsedCount(getTodayCount());
+  }, [open]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -66,6 +104,19 @@ export default function ChatbotWidget() {
   const sendMessage = async () => {
     const text = input.trim();
     if (!text || loading) return;
+    const currentCount = getTodayCount();
+    if (currentCount >= DAILY_LIMIT) {
+      setMessages((m) => [
+        ...m,
+        { role: "user", content: text },
+        {
+          role: "assistant",
+          content: `Maaf, Anda telah mencapai batas ${DAILY_LIMIT} pertanyaan per hari. Silakan kembali besok ya! 😊`,
+        },
+      ]);
+      setInput("");
+      return;
+    }
     setInput("");
     const newMessages = [...messages, { role: "user" as const, content: text }];
     setMessages(newMessages);
@@ -82,6 +133,7 @@ export default function ChatbotWidget() {
       if (error) throw error;
       const reply = data?.reply || data?.error || "Maaf, terjadi kesalahan.";
       setMessages((m) => [...m, { role: "assistant", content: reply }]);
+      setUsedCount(incrementTodayCount());
     } catch (e: any) {
       setMessages((m) => [
         ...m,
