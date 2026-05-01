@@ -793,13 +793,15 @@ export default function AdminChatbot() {
                       {setForm.avatar_url && (
                         <button
                           type="button"
-                          onClick={() => setSetForm({ ...setForm, avatar_url: null })}
+                          onClick={resetAvatar}
                           className="inline-flex w-fit items-center gap-1 text-xs text-destructive hover:underline"
                         >
                           <XIcon className="h-3 w-3" /> Gunakan default
                         </button>
                       )}
-                      <p className="text-[11px] text-muted-foreground">Disarankan rasio 1:1, maks 5MB.</p>
+                      <p className="text-[11px] text-muted-foreground">
+                        JPG/PNG/WEBP/GIF. Otomatis dikompres ke ≤500KB & disimpan langsung.
+                      </p>
                     </div>
                   </div>
                 </div>
