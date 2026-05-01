@@ -287,28 +287,107 @@ export default function AdminChatbot() {
   };
 
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  const MAX_AVATAR_BYTES = 500 * 1024; // 500 KB
+  const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+
+  // Compress image to <= maxBytes by resizing + re-encoding to WebP/JPEG.
+  const compressImage = async (file: File, maxBytes: number): Promise<Blob> => {
+    const dataUrl: string = await new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result as string);
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+    const img: HTMLImageElement = await new Promise((resolve, reject) => {
+      const i = new Image();
+      i.onload = () => resolve(i);
+      i.onerror = reject;
+      i.src = dataUrl;
+    });
+    const supportsWebp =
+      document.createElement("canvas").toDataURL("image/webp").startsWith("data:image/webp");
+    const mime = supportsWebp ? "image/webp" : "image/jpeg";
+    let maxDim = 512;
+    let quality = 0.9;
+    for (let attempt = 0; attempt < 8; attempt++) {
+      const ratio = Math.min(1, maxDim / Math.max(img.width, img.height));
+      const w = Math.round(img.width * ratio);
+      const h = Math.round(img.height * ratio);
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(img, 0, 0, w, h);
+      const blob: Blob = await new Promise((res) =>
+        canvas.toBlob((b) => res(b!), mime, quality)
+      );
+      if (blob.size <= maxBytes) return blob;
+      // Shrink for next attempt
+      if (quality > 0.5) quality -= 0.1;
+      else maxDim = Math.round(maxDim * 0.85);
+    }
+    throw new Error("Gambar tidak dapat dikompres di bawah 500KB");
+  };
+
   const handleAvatarUpload = async (file: File) => {
     if (!setForm) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Ukuran maksimal 5MB");
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      toast.error("Tipe file tidak didukung. Gunakan JPG, PNG, WEBP, atau GIF.");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File terlalu besar (maks 10MB sebelum kompresi)");
       return;
     }
     setUploadingAvatar(true);
     try {
-      const ext = file.name.split(".").pop() || "png";
+      let blob: Blob = file;
+      let ext = (file.type.split("/")[1] || "png").replace("jpeg", "jpg");
+      if (file.size > MAX_AVATAR_BYTES) {
+        blob = await compressImage(file, MAX_AVATAR_BYTES);
+        ext = blob.type.includes("webp") ? "webp" : "jpg";
+      }
+      if (blob.size > MAX_AVATAR_BYTES) {
+        toast.error("Ukuran avatar melebihi 500KB setelah kompresi");
+        return;
+      }
       const path = `chatbot/avatar-${Date.now()}.${ext}`;
       const { error: upErr } = await supabase.storage
         .from("uploads")
-        .upload(path, file, { upsert: true, contentType: file.type });
+        .upload(path, blob, { upsert: true, contentType: blob.type });
       if (upErr) throw upErr;
       const { data } = supabase.storage.from("uploads").getPublicUrl(path);
+
+      // Auto-save: persist to DB immediately
+      const { error: dbErr } = await supabase
+        .from("chatbot_settings")
+        .update({ avatar_url: data.publicUrl })
+        .eq("id", setForm.id);
+      if (dbErr) throw dbErr;
+
       setSetForm({ ...setForm, avatar_url: data.publicUrl });
-      toast.success("Avatar diunggah. Klik Simpan untuk menerapkan.");
+      qc.invalidateQueries({ queryKey: ["chatbot-settings-admin"] });
+      qc.invalidateQueries({ queryKey: ["chatbot-settings"] });
+      toast.success(`Avatar diperbarui (${Math.round(blob.size / 1024)}KB)`);
     } catch (e: any) {
       toast.error("Gagal unggah: " + (e.message || e));
     } finally {
       setUploadingAvatar(false);
     }
+  };
+
+  const resetAvatar = async () => {
+    if (!setForm) return;
+    const { error } = await supabase
+      .from("chatbot_settings")
+      .update({ avatar_url: null })
+      .eq("id", setForm.id);
+    if (error) return toast.error(error.message);
+    setSetForm({ ...setForm, avatar_url: null });
+    qc.invalidateQueries({ queryKey: ["chatbot-settings-admin"] });
+    qc.invalidateQueries({ queryKey: ["chatbot-settings"] });
+    toast.success("Avatar dikembalikan ke default");
   };
 
   /* ============ CONVERSATIONS ============ */
@@ -714,13 +793,15 @@ export default function AdminChatbot() {
                       {setForm.avatar_url && (
                         <button
                           type="button"
-                          onClick={() => setSetForm({ ...setForm, avatar_url: null })}
+                          onClick={resetAvatar}
                           className="inline-flex w-fit items-center gap-1 text-xs text-destructive hover:underline"
                         >
                           <XIcon className="h-3 w-3" /> Gunakan default
                         </button>
                       )}
-                      <p className="text-[11px] text-muted-foreground">Disarankan rasio 1:1, maks 5MB.</p>
+                      <p className="text-[11px] text-muted-foreground">
+                        JPG/PNG/WEBP/GIF. Otomatis dikompres ke ≤500KB & disimpan langsung.
+                      </p>
                     </div>
                   </div>
                 </div>

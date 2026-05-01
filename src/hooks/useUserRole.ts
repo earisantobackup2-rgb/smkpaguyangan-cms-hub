@@ -14,9 +14,15 @@ export function useUserRole() {
         if (mounted) { setRole(null); setLoading(false); }
         return;
       }
-      const { data } = await supabase.rpc("get_user_role", { _user_id: userId });
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .order("role", { ascending: true })
+        .limit(1)
+        .maybeSingle();
       if (mounted) {
-        setRole((data as AppRole) ?? null);
+        setRole(((data?.role as AppRole) ?? null));
         setLoading(false);
       }
     };
