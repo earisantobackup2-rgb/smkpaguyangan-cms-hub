@@ -287,25 +287,36 @@ export default function ChatbotWidget() {
                 e.preventDefault();
                 sendMessage();
               }}
-              className="flex items-center gap-2 border-t bg-background p-2"
+              className="flex flex-col gap-1 border-t bg-background p-2"
             >
-              <input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder={settings.placeholder_text}
-                className="flex-1 rounded-full border bg-muted/50 px-4 py-2 text-sm outline-none focus:ring-2"
-                style={{ ['--tw-ring-color' as any]: color }}
-                disabled={loading}
-              />
-              <button
-                type="submit"
-                disabled={loading || !input.trim()}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white disabled:opacity-50"
-                style={{ background: color }}
-                aria-label="Kirim"
-              >
-                <Send className="h-4 w-4" />
-              </button>
+              <div className="flex items-center gap-2">
+                <input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder={
+                    usedCount >= DAILY_LIMIT
+                      ? "Batas harian tercapai"
+                      : settings.placeholder_text
+                  }
+                  className="flex-1 rounded-full border bg-muted/50 px-4 py-2 text-sm outline-none focus:ring-2 disabled:opacity-60"
+                  style={{ ['--tw-ring-color' as any]: color }}
+                  disabled={loading || usedCount >= DAILY_LIMIT}
+                />
+                <button
+                  type="submit"
+                  disabled={loading || !input.trim() || usedCount >= DAILY_LIMIT}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white disabled:opacity-50"
+                  style={{ background: color }}
+                  aria-label="Kirim"
+                >
+                  <Send className="h-4 w-4" />
+                </button>
+              </div>
+              <p className="px-2 text-[10px] text-muted-foreground">
+                {usedCount >= DAILY_LIMIT
+                  ? `Batas ${DAILY_LIMIT} pertanyaan/hari tercapai. Coba lagi besok.`
+                  : `${usedCount}/${DAILY_LIMIT} pertanyaan hari ini`}
+              </p>
             </form>
           </div>
         )}
