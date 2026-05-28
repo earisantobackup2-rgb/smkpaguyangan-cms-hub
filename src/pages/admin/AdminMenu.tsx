@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Trash2, Plus, Pencil, X, GripVertical } from "lucide-react";
+import { Trash2, Plus, Pencil, X, GripVertical, ChevronRight } from "lucide-react";
 
-const emptyForm = { label: "", url: "", sort_order: 0, is_visible: true, open_in_new_tab: false };
+const emptyForm = { label: "", url: "", sort_order: 0, is_visible: true, open_in_new_tab: false, parent_id: null as string | null };
 
 export default function AdminMenu() {
   const queryClient = useQueryClient();
@@ -22,15 +23,25 @@ export default function AdminMenu() {
       const { data } = await supabase
         .from("menu_items")
         .select("*")
-        .is("parent_id", null)
         .order("sort_order", { ascending: true });
       return data || [];
     },
   });
 
+  const { data: pages = [] } = useQuery({
+    queryKey: ["admin-pages-for-menu"],
+    queryFn: async () => {
+      const { data } = await supabase.from("pages").select("id,title,slug,is_published").order("title");
+      return (data || []).filter((p: any) => p.is_published !== false);
+    },
+  });
+
+  const parents = items.filter((i: any) => !i.parent_id);
+  const childrenOf = (pid: string) => items.filter((i: any) => i.parent_id === pid);
+
   const openCreate = () => {
     setEditingId(null);
-    setForm({ ...emptyForm, sort_order: items.length });
+    setForm({ ...emptyForm, sort_order: parents.length });
     setShowForm(true);
   };
 
@@ -42,6 +53,7 @@ export default function AdminMenu() {
       sort_order: item.sort_order,
       is_visible: item.is_visible,
       open_in_new_tab: item.open_in_new_tab,
+      parent_id: item.parent_id || null,
     });
     setShowForm(true);
   };
@@ -54,12 +66,13 @@ export default function AdminMenu() {
 
   const saveMutation = useMutation({
     mutationFn: async () => {
-      const payload = {
+      const payload: any = {
         label: form.label,
         url: form.url,
         sort_order: form.sort_order,
         is_visible: form.is_visible,
         open_in_new_tab: form.open_in_new_tab,
+        parent_id: form.parent_id,
       };
       if (editingId) {
         const { error } = await supabase.from("menu_items").update(payload).eq("id", editingId);
@@ -71,6 +84,7 @@ export default function AdminMenu() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-menu-items"] });
+      queryClient.invalidateQueries({ queryKey: ["public-menu-items"] });
       closeForm();
       toast.success(editingId ? "Menu diperbarui" : "Menu ditambahkan");
     },
@@ -84,6 +98,7 @@ export default function AdminMenu() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-menu-items"] });
+      queryClient.invalidateQueries({ queryKey: ["public-menu-items"] });
       toast.success("Menu dihapus");
     },
   });
@@ -109,9 +124,33 @@ export default function AdminMenu() {
             <div>
               <Label>URL / Path</Label>
               <Input value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="/ atau /jurusan atau https://..." />
+              {pages.length > 0 && (
+                <div className="mt-2">
+                  <Select value="" onValueChange={(v) => setForm({ ...form, url: v, label: form.label || (pages.find((p: any) => `/halaman/${p.slug}` === v)?.title || "") })}>
+                    <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Atau pilih dari halaman..." /></SelectTrigger>
+                    <SelectContent>
+                      {pages.map((p: any) => (
+                        <SelectItem key={p.id} value={`/halaman/${p.slug}`}>{p.title}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <Label>Induk Menu (untuk sub-menu)</Label>
+              <Select value={form.parent_id || "none"} onValueChange={(v) => setForm({ ...form, parent_id: v === "none" ? null : v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">— Menu Utama —</SelectItem>
+                  {parents.filter((p: any) => p.id !== editingId).map((p: any) => (
+                    <SelectItem key={p.id} value={p.id}>{p.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div>
               <Label>Urutan</Label>
               <Input type="number" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: parseInt(e.target.value) || 0 })} />
@@ -147,29 +186,56 @@ export default function AdminMenu() {
               <th className="p-3 font-medium">Aksi</th>
             </tr></thead>
             <tbody>
-              {items.map((item: any) => (
-                <tr key={item.id} className="border-b last:border-0">
-                  <td className="p-3">
-                    <span className="flex items-center gap-1 text-muted-foreground">
-                      <GripVertical className="h-4 w-4" /> {item.sort_order}
-                    </span>
-                  </td>
-                  <td className="p-3 font-medium">{item.label}</td>
-                  <td className="p-3 text-muted-foreground">{item.url}</td>
-                  <td className="p-3">{item.is_visible ? "✅ Tampil" : "Tersembunyi"}</td>
-                  <td className="p-3 text-center space-x-1">
-                    <Button variant="ghost" size="sm" onClick={() => openEdit(item)}>
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={() => {
-                      if (confirm("Hapus menu ini?")) deleteMutation.mutate(item.id);
-                    }}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-              {items.length === 0 && (
+              {parents.map((item: any) => {
+                const children = childrenOf(item.id);
+                return (
+                  <>
+                    <tr key={item.id} className="border-b last:border-0">
+                      <td className="p-3">
+                        <span className="flex items-center gap-1 text-muted-foreground">
+                          <GripVertical className="h-4 w-4" /> {item.sort_order}
+                        </span>
+                      </td>
+                      <td className="p-3 font-medium">{item.label}</td>
+                      <td className="p-3 text-muted-foreground"><code className="text-xs">{item.url}</code></td>
+                      <td className="p-3">{item.is_visible ? "✅ Tampil" : "Tersembunyi"}</td>
+                      <td className="p-3 text-center space-x-1">
+                        <Button variant="ghost" size="sm" onClick={() => openEdit(item)}>
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => {
+                          if (confirm("Hapus menu ini? Sub-menu juga akan ikut terhapus.")) deleteMutation.mutate(item.id);
+                        }}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </td>
+                    </tr>
+                    {children.map((c: any) => (
+                      <tr key={c.id} className="border-b last:border-0 bg-muted/20">
+                        <td className="p-3 pl-8">
+                          <span className="flex items-center gap-1 text-muted-foreground text-xs">
+                            <ChevronRight className="h-3 w-3" /> {c.sort_order}
+                          </span>
+                        </td>
+                        <td className="p-3 pl-8 text-sm">↳ {c.label}</td>
+                        <td className="p-3 text-muted-foreground"><code className="text-xs">{c.url}</code></td>
+                        <td className="p-3">{c.is_visible ? "✅" : "—"}</td>
+                        <td className="p-3 text-center space-x-1">
+                          <Button variant="ghost" size="sm" onClick={() => openEdit(c)}>
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => {
+                            if (confirm("Hapus sub-menu ini?")) deleteMutation.mutate(c.id);
+                          }}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </>
+                );
+              })}
+              {parents.length === 0 && (
                 <tr><td colSpan={5} className="p-6 text-center text-muted-foreground">Belum ada menu. Klik "Tambah Menu" untuk memulai.</td></tr>
               )}
             </tbody>

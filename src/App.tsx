@@ -19,6 +19,7 @@ import AdminBerita from "./pages/admin/AdminBerita.tsx";
 import AdminPrestasi from "./pages/admin/AdminPrestasi.tsx";
 import AdminKerjasama from "./pages/admin/AdminKerjasama.tsx";
 import AdminHalaman from "./pages/admin/AdminHalaman.tsx";
+import AdminPageBuilder from "./pages/admin/AdminPageBuilder.tsx";
 import AdminSekolah from "./pages/admin/AdminSekolah.tsx";
 import AdminJurusan from "./pages/admin/AdminJurusan.tsx";
 import AdminGaleri from "./pages/admin/AdminGaleri.tsx";
@@ -29,6 +30,7 @@ import AdminSections from "./pages/admin/AdminSections.tsx";
 import AdminUsers from "./pages/admin/AdminUsers.tsx";
 import AdminChatbot from "./pages/admin/AdminChatbot.tsx";
 import GaleriPage from "./pages/GaleriPage.tsx";
+import HalamanPage from "./pages/HalamanPage.tsx";
 import PencarianPage from "./pages/PencarianPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import ChatbotWidget from "./components/public/ChatbotWidget.tsx";
@@ -69,6 +71,7 @@ function AppRoutes() {
           <Route path="/profil" element={<ProfilPage />} />
           <Route path="/kontak" element={<KontakPage />} />
           <Route path="/galeri" element={<GaleriPage />} />
+          <Route path="/halaman/:slug" element={<HalamanPage />} />
           <Route path="/pencarian" element={<PencarianPage />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminLayout />}>
@@ -78,6 +81,7 @@ function AppRoutes() {
             <Route path="prestasi" element={<AdminPrestasi />} />
             <Route path="kerjasama" element={<AdminKerjasama />} />
             <Route path="halaman" element={<AdminHalaman />} />
+            <Route path="halaman/:id/edit" element={<AdminPageBuilder />} />
             <Route path="sekolah" element={<AdminSekolah />} />
             <Route path="galeri" element={<AdminGaleri />} />
             <Route path="pesan" element={<AdminPesan />} />
