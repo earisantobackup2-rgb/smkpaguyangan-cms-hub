@@ -475,25 +475,37 @@ export type Database = {
       }
       pages: {
         Row: {
+          blocks: Json
           content: string | null
           created_at: string
           id: string
+          is_published: boolean
+          meta_description: string | null
+          show_in_menu: boolean
           slug: string
           title: string
           updated_at: string
         }
         Insert: {
+          blocks?: Json
           content?: string | null
           created_at?: string
           id?: string
+          is_published?: boolean
+          meta_description?: string | null
+          show_in_menu?: boolean
           slug: string
           title: string
           updated_at?: string
         }
         Update: {
+          blocks?: Json
           content?: string | null
           created_at?: string
           id?: string
+          is_published?: boolean
+          meta_description?: string | null
+          show_in_menu?: boolean
           slug?: string
           title?: string
           updated_at?: string
