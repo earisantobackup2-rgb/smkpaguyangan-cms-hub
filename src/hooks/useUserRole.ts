@@ -35,6 +35,7 @@ export function useUserRole() {
       fetchRole(data.session?.user.id);
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      if (mounted) setLoading(true);
       fetchRole(session?.user.id);
     });
     return () => { mounted = false; subscription.unsubscribe(); };
