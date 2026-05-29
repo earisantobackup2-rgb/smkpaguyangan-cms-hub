@@ -14,15 +14,19 @@ export function useUserRole() {
         if (mounted) { setRole(null); setLoading(false); }
         return;
       }
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("user_roles")
         .select("role")
-        .eq("user_id", userId)
-        .order("role", { ascending: true })
-        .limit(1)
-        .maybeSingle();
+        .eq("user_id", userId);
       if (mounted) {
-        setRole(((data?.role as AppRole) ?? null));
+        if (error) console.error("useUserRole fetch error:", error);
+        const roles = (data ?? []).map((r: any) => r.role as AppRole);
+        const resolved: AppRole = roles.includes("administrator")
+          ? "administrator"
+          : roles.includes("admin")
+            ? "admin"
+            : null;
+        setRole(resolved);
         setLoading(false);
       }
     };
