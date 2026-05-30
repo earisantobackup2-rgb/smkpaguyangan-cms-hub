@@ -152,14 +152,15 @@ export default function AdminPageBuilder() {
         blocks,
         content: blocks.filter((b: any) => b.type === "paragraph").map((b: any) => b.text).join("\n\n"),
       };
+      let savedId: string;
       if (isNew) {
         const { data, error } = await supabase.from("pages").insert(payload).select("id").maybeSingle();
         if (error) throw error;
-        var savedId = data!.id as string;
+        savedId = data!.id as string;
       } else {
         const { error } = await supabase.from("pages").update(payload).eq("id", id as string);
         if (error) throw error;
-        var savedId = id as string;
+        savedId = id as string;
       }
       const pageUrl = `/halaman/${finalSlug}`;
       if (addToMenu) {
