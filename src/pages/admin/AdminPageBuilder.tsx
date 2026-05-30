@@ -437,7 +437,7 @@ export default function AdminPageBuilder() {
             <p className="font-semibold text-foreground mb-1">Tips</p>
             <ul className="list-disc pl-4 space-y-1">
               <li>Posisi <b>Kiri/Kanan</b> membuat teks membungkus gambar.</li>
-              <li>Ukuran gambar maks 5MB.</li>
+              <li>Ukuran gambar maks 1MB, otomatis dikompres jika melebihi.</li>
               <li>URL halaman dapat ditambahkan ke navigasi di menu Website.</li>
             </ul>
           </div>
