@@ -155,17 +155,41 @@ export default function AdminPageBuilder() {
       if (isNew) {
         const { data, error } = await supabase.from("pages").insert(payload).select("id").maybeSingle();
         if (error) throw error;
-        return data!.id as string;
+        var savedId = data!.id as string;
       } else {
         const { error } = await supabase.from("pages").update(payload).eq("id", id as string);
         if (error) throw error;
-        return id as string;
+        var savedId = id as string;
       }
+      const pageUrl = `/halaman/${finalSlug}`;
+      if (addToMenu) {
+        const menuPayload = {
+          label: (menuLabel.trim() || title.trim()),
+          url: pageUrl,
+          parent_id: menuParentId === "none" ? null : menuParentId,
+          open_in_new_tab: menuOpenNewTab,
+          is_visible: true,
+        };
+        if (menuItemId) {
+          const { error: mErr } = await supabase.from("menu_items").update(menuPayload).eq("id", menuItemId);
+          if (mErr) throw mErr;
+        } else {
+          const { data: mi, error: mErr } = await supabase.from("menu_items").insert(menuPayload).select("id").maybeSingle();
+          if (mErr) throw mErr;
+          if (mi) setMenuItemId(mi.id);
+        }
+      } else if (menuItemId) {
+        await supabase.from("menu_items").delete().eq("id", menuItemId);
+        setMenuItemId(null);
+      }
+      return savedId;
     },
     onSuccess: (newId) => {
       queryClient.invalidateQueries({ queryKey: ["admin-pages"] });
       queryClient.invalidateQueries({ queryKey: ["admin-page", newId] });
       queryClient.invalidateQueries({ queryKey: ["public-page"] });
+      queryClient.invalidateQueries({ queryKey: ["public-menu-items"] });
+      queryClient.invalidateQueries({ queryKey: ["menu-parents"] });
       toast.success("Halaman tersimpan");
       if (isNew) navigate(`/admin/halaman/${newId}/edit`);
     },
