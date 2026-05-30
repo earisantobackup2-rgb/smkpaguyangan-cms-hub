@@ -33,6 +33,11 @@ export default function AdminPageBuilder() {
   const [showInMenu, setShowInMenu] = useState(false);
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [uploadingId, setUploadingId] = useState<string | null>(null);
+  const [addToMenu, setAddToMenu] = useState(false);
+  const [menuLabel, setMenuLabel] = useState("");
+  const [menuParentId, setMenuParentId] = useState<string>("none");
+  const [menuItemId, setMenuItemId] = useState<string | null>(null);
+  const [menuOpenNewTab, setMenuOpenNewTab] = useState(false);
 
   const { data: page } = useQuery({
     queryKey: ["admin-page", id],
@@ -43,6 +48,18 @@ export default function AdminPageBuilder() {
       return data;
     },
     enabled: !isNew,
+  });
+
+  const { data: menuParents = [] } = useQuery({
+    queryKey: ["menu-parents"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("menu_items")
+        .select("id,label,parent_id")
+        .is("parent_id", null)
+        .order("sort_order");
+      return (data || []).filter((m: any) => m.url !== `/halaman/${slug}`);
+    },
   });
 
   useEffect(() => {
@@ -56,6 +73,24 @@ export default function AdminPageBuilder() {
       setBlocks(b);
     }
   }, [page]);
+
+  useEffect(() => {
+    (async () => {
+      if (isNew || !page?.slug) return;
+      const url = `/halaman/${page.slug}`;
+      const { data } = await supabase.from("menu_items").select("*").eq("url", url).maybeSingle();
+      if (data) {
+        setMenuItemId(data.id);
+        setAddToMenu(true);
+        setMenuLabel(data.label);
+        setMenuParentId(data.parent_id || "none");
+        setMenuOpenNewTab(!!data.open_in_new_tab);
+      } else if (page.title && !menuLabel) {
+        setMenuLabel(page.title);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, isNew]);
 
   const addBlock = (type: Block["type"]) => {
     const base = { id: uid() };
@@ -117,20 +152,45 @@ export default function AdminPageBuilder() {
         blocks,
         content: blocks.filter((b: any) => b.type === "paragraph").map((b: any) => b.text).join("\n\n"),
       };
+      let savedId: string;
       if (isNew) {
         const { data, error } = await supabase.from("pages").insert(payload).select("id").maybeSingle();
         if (error) throw error;
-        return data!.id as string;
+        savedId = data!.id as string;
       } else {
         const { error } = await supabase.from("pages").update(payload).eq("id", id as string);
         if (error) throw error;
-        return id as string;
+        savedId = id as string;
       }
+      const pageUrl = `/halaman/${finalSlug}`;
+      if (addToMenu) {
+        const menuPayload = {
+          label: (menuLabel.trim() || title.trim()),
+          url: pageUrl,
+          parent_id: menuParentId === "none" ? null : menuParentId,
+          open_in_new_tab: menuOpenNewTab,
+          is_visible: true,
+        };
+        if (menuItemId) {
+          const { error: mErr } = await supabase.from("menu_items").update(menuPayload).eq("id", menuItemId);
+          if (mErr) throw mErr;
+        } else {
+          const { data: mi, error: mErr } = await supabase.from("menu_items").insert(menuPayload).select("id").maybeSingle();
+          if (mErr) throw mErr;
+          if (mi) setMenuItemId(mi.id);
+        }
+      } else if (menuItemId) {
+        await supabase.from("menu_items").delete().eq("id", menuItemId);
+        setMenuItemId(null);
+      }
+      return savedId;
     },
     onSuccess: (newId) => {
       queryClient.invalidateQueries({ queryKey: ["admin-pages"] });
       queryClient.invalidateQueries({ queryKey: ["admin-page", newId] });
       queryClient.invalidateQueries({ queryKey: ["public-page"] });
+      queryClient.invalidateQueries({ queryKey: ["public-menu-items"] });
+      queryClient.invalidateQueries({ queryKey: ["menu-parents"] });
       toast.success("Halaman tersimpan");
       if (isNew) navigate(`/admin/halaman/${newId}/edit`);
     },
@@ -286,14 +346,41 @@ export default function AdminPageBuilder() {
               <Label className="text-sm">Terbitkan</Label>
               <Switch checked={isPublished} onCheckedChange={setIsPublished} />
             </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <Label className="text-sm">Tampilkan di menu</Label>
-                <p className="text-xs text-muted-foreground">Buka Menu Website untuk menambahkan</p>
-              </div>
-              <Switch checked={showInMenu} onCheckedChange={setShowInMenu} />
-            </div>
           </div>
+
+          <div className="rounded-xl bg-card shadow-card p-5 space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="font-semibold text-sm">Menu Navigasi</h2>
+              <Switch checked={addToMenu} onCheckedChange={(v) => { setAddToMenu(v); setShowInMenu(v); }} />
+            </div>
+            <p className="text-xs text-muted-foreground">Tambahkan halaman ini ke menu header & footer.</p>
+            {addToMenu && (
+              <div className="space-y-3 pt-2">
+                <div>
+                  <Label className="text-xs">Label Menu</Label>
+                  <Input value={menuLabel} onChange={(e) => setMenuLabel(e.target.value)} placeholder="Nama yang tampil di menu" />
+                </div>
+                <div>
+                  <Label className="text-xs">Menu Induk (opsional)</Label>
+                  <Select value={menuParentId} onValueChange={setMenuParentId}>
+                    <SelectTrigger><SelectValue placeholder="Menu utama" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">— Menu utama —</SelectItem>
+                      {menuParents.map((m: any) => (
+                        <SelectItem key={m.id} value={m.id}>{m.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground mt-1">Pilih untuk menjadi sub-menu.</p>
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Buka di tab baru</Label>
+                  <Switch checked={menuOpenNewTab} onCheckedChange={setMenuOpenNewTab} />
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="rounded-xl bg-muted/40 p-4 text-xs text-muted-foreground">
             <p className="font-semibold text-foreground mb-1">Tips</p>
             <ul className="list-disc pl-4 space-y-1">
