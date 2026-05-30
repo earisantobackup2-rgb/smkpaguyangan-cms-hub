@@ -33,6 +33,11 @@ export default function AdminPageBuilder() {
   const [showInMenu, setShowInMenu] = useState(false);
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [uploadingId, setUploadingId] = useState<string | null>(null);
+  const [addToMenu, setAddToMenu] = useState(false);
+  const [menuLabel, setMenuLabel] = useState("");
+  const [menuParentId, setMenuParentId] = useState<string>("none");
+  const [menuItemId, setMenuItemId] = useState<string | null>(null);
+  const [menuOpenNewTab, setMenuOpenNewTab] = useState(false);
 
   const { data: page } = useQuery({
     queryKey: ["admin-page", id],
@@ -43,6 +48,18 @@ export default function AdminPageBuilder() {
       return data;
     },
     enabled: !isNew,
+  });
+
+  const { data: menuParents = [] } = useQuery({
+    queryKey: ["menu-parents"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("menu_items")
+        .select("id,label,parent_id")
+        .is("parent_id", null)
+        .order("sort_order");
+      return (data || []).filter((m: any) => m.url !== `/halaman/${slug}`);
+    },
   });
 
   useEffect(() => {
@@ -56,6 +73,24 @@ export default function AdminPageBuilder() {
       setBlocks(b);
     }
   }, [page]);
+
+  useEffect(() => {
+    (async () => {
+      if (isNew || !page?.slug) return;
+      const url = `/halaman/${page.slug}`;
+      const { data } = await supabase.from("menu_items").select("*").eq("url", url).maybeSingle();
+      if (data) {
+        setMenuItemId(data.id);
+        setAddToMenu(true);
+        setMenuLabel(data.label);
+        setMenuParentId(data.parent_id || "none");
+        setMenuOpenNewTab(!!data.open_in_new_tab);
+      } else if (page.title && !menuLabel) {
+        setMenuLabel(page.title);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, isNew]);
 
   const addBlock = (type: Block["type"]) => {
     const base = { id: uid() };
