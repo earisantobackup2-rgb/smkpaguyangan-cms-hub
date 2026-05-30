@@ -345,14 +345,41 @@ export default function AdminPageBuilder() {
               <Label className="text-sm">Terbitkan</Label>
               <Switch checked={isPublished} onCheckedChange={setIsPublished} />
             </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <Label className="text-sm">Tampilkan di menu</Label>
-                <p className="text-xs text-muted-foreground">Buka Menu Website untuk menambahkan</p>
-              </div>
-              <Switch checked={showInMenu} onCheckedChange={setShowInMenu} />
-            </div>
           </div>
+
+          <div className="rounded-xl bg-card shadow-card p-5 space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="font-semibold text-sm">Menu Navigasi</h2>
+              <Switch checked={addToMenu} onCheckedChange={(v) => { setAddToMenu(v); setShowInMenu(v); }} />
+            </div>
+            <p className="text-xs text-muted-foreground">Tambahkan halaman ini ke menu header & footer.</p>
+            {addToMenu && (
+              <div className="space-y-3 pt-2">
+                <div>
+                  <Label className="text-xs">Label Menu</Label>
+                  <Input value={menuLabel} onChange={(e) => setMenuLabel(e.target.value)} placeholder="Nama yang tampil di menu" />
+                </div>
+                <div>
+                  <Label className="text-xs">Menu Induk (opsional)</Label>
+                  <Select value={menuParentId} onValueChange={setMenuParentId}>
+                    <SelectTrigger><SelectValue placeholder="Menu utama" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">— Menu utama —</SelectItem>
+                      {menuParents.map((m: any) => (
+                        <SelectItem key={m.id} value={m.id}>{m.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground mt-1">Pilih untuk menjadi sub-menu.</p>
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs">Buka di tab baru</Label>
+                  <Switch checked={menuOpenNewTab} onCheckedChange={setMenuOpenNewTab} />
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="rounded-xl bg-muted/40 p-4 text-xs text-muted-foreground">
             <p className="font-semibold text-foreground mb-1">Tips</p>
             <ul className="list-disc pl-4 space-y-1">
