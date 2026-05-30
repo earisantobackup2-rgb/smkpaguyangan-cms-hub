@@ -120,14 +120,66 @@ export default function AdminPageBuilder() {
     });
   };
 
+  const compressImage = async (file: File, maxBytes: number = 1 * 1024 * 1024): Promise<File> => {
+    if (file.size <= maxBytes) return file;
+
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        let { width, height } = img;
+        const maxDim = 1920;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) { height = Math.round(height * maxDim / width); width = maxDim; }
+          else { width = Math.round(width * maxDim / height); height = maxDim; }
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) { reject(new Error("Canvas tidak tersedia")); return; }
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const mime = file.type === "image/png" ? "image/png" : "image/jpeg";
+        let quality = 0.92;
+        const attempt = (): void => {
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) { reject(new Error("Gagal mengompres gambar")); return; }
+              if (blob.size <= maxBytes || quality <= 0.3) {
+                const compressed = new File([blob], file.name, { type: mime, lastModified: Date.now() });
+                resolve(compressed);
+              } else {
+                quality -= 0.1;
+                attempt();
+              }
+            },
+            mime,
+            quality
+          );
+        };
+        attempt();
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Gagal memuat gambar")); };
+      img.src = url;
+    });
+  };
+
   const uploadImage = async (bid: string, file: File) => {
     if (!file.type.startsWith("image/")) { toast.error("File harus berupa gambar"); return; }
-    if (file.size > 5 * 1024 * 1024) { toast.error("Ukuran maksimal 5MB"); return; }
+
     setUploadingId(bid);
     try {
-      const ext = file.name.split(".").pop() || "jpg";
+      const target = file.size > 1 * 1024 * 1024 ? await compressImage(file) : file;
+      if (target.size > 1 * 1024 * 1024) {
+        toast.error("Gambar terlalu besar meski sudah dikompres. Coba gambar lain.");
+        return;
+      }
+      const ext = target.name.split(".").pop() || "jpg";
       const path = `pages/${Date.now()}-${uid()}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("uploads").upload(path, file, { upsert: false });
+      const { error: upErr } = await supabase.storage.from("uploads").upload(path, target, { upsert: false });
       if (upErr) throw upErr;
       const { data } = supabase.storage.from("uploads").getPublicUrl(path);
       updateBlock(bid, { url: data.publicUrl } as any);
@@ -385,7 +437,7 @@ export default function AdminPageBuilder() {
             <p className="font-semibold text-foreground mb-1">Tips</p>
             <ul className="list-disc pl-4 space-y-1">
               <li>Posisi <b>Kiri/Kanan</b> membuat teks membungkus gambar.</li>
-              <li>Ukuran gambar maks 5MB.</li>
+              <li>Ukuran gambar maks 1MB, otomatis dikompres jika melebihi.</li>
               <li>URL halaman dapat ditambahkan ke navigasi di menu Website.</li>
             </ul>
           </div>
