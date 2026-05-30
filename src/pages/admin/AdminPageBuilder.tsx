@@ -182,7 +182,7 @@ export default function AdminPageBuilder() {
       const { error: upErr } = await supabase.storage.from("uploads").upload(path, target, { upsert: false });
       if (upErr) throw upErr;
       const { data } = supabase.storage.from("uploads").getPublicUrl(path);
-      updateBlock(b.id, { url: data.publicUrl } as any);
+      updateBlock(bid, { url: data.publicUrl } as any);
       toast.success("Gambar diunggah");
     } catch (e: any) {
       toast.error(e.message || "Gagal upload");
