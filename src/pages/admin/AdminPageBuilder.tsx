@@ -227,7 +227,7 @@ export default function AdminPageBuilder() {
         </div>
       </div>
 
-      <div className={`grid gap-6 ${showPreview ? "xl:grid-cols-[1fr_minmax(360px,640px)]" : "lg:grid-cols-[1fr_320px]"}`}>
+      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <div className="space-y-4">
           <div className="rounded-xl bg-card shadow-card p-5 space-y-3">
             <div>
