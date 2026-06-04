@@ -396,12 +396,55 @@ export default function AdminPageBuilder() {
             <p className="font-semibold text-foreground mb-1">Tips</p>
             <ul className="list-disc pl-4 space-y-1">
               <li>Posisi <b>Kiri/Kanan</b> membuat teks membungkus gambar.</li>
-              <li>Ukuran gambar maks 1MB, otomatis dikompres jika melebihi.</li>
+              <li>Ukuran gambar maks <b>1MB</b>. Kompres dulu jika lebih besar.</li>
               <li>URL halaman dapat ditambahkan ke navigasi di menu Website.</li>
             </ul>
           </div>
         </aside>
       </div>
+
+      {showPreview && (
+        <div className="mt-8 rounded-xl bg-card shadow-card overflow-hidden">
+          <div className="flex items-center justify-between gap-3 px-5 py-3 border-b bg-muted/40 flex-wrap">
+            <div className="flex items-center gap-2">
+              <Eye className="h-4 w-4 text-primary" />
+              <h2 className="font-semibold text-sm">Live Preview</h2>
+              <span className="text-xs text-muted-foreground">(tampilan publik)</span>
+            </div>
+            <div className="inline-flex rounded-md border bg-background overflow-hidden">
+              <button type="button" onClick={() => setPreviewDevice("desktop")} className={`px-3 py-1.5 text-xs inline-flex items-center gap-1 ${previewDevice === "desktop" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>
+                <Monitor className="h-3.5 w-3.5" /> Desktop
+              </button>
+              <button type="button" onClick={() => setPreviewDevice("tablet")} className={`px-3 py-1.5 text-xs inline-flex items-center gap-1 border-l ${previewDevice === "tablet" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>
+                <Tablet className="h-3.5 w-3.5" /> Tablet
+              </button>
+              <button type="button" onClick={() => setPreviewDevice("mobile")} className={`px-3 py-1.5 text-xs inline-flex items-center gap-1 border-l ${previewDevice === "mobile" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>
+                <Smartphone className="h-3.5 w-3.5" /> Mobile
+              </button>
+            </div>
+          </div>
+          <div className="bg-muted/30 p-4 overflow-auto">
+            <div
+              className="mx-auto bg-background border rounded-lg shadow-sm transition-all duration-300 overflow-hidden"
+              style={{
+                width: previewDevice === "desktop" ? "100%" : previewDevice === "tablet" ? "768px" : "390px",
+                maxWidth: "100%",
+              }}
+            >
+              <div className="px-6 py-6 sm:px-8 sm:py-8">
+                <h1 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-2">{title || "Judul Halaman"}</h1>
+                {metaDescription && <p className="text-sm text-muted-foreground mb-4">{metaDescription}</p>}
+                <hr className="mb-4 border-border" />
+                {blocks.length === 0 ? (
+                  <p className="text-sm text-muted-foreground italic">Belum ada konten. Tambah blok di editor untuk melihat pratinjau.</p>
+                ) : (
+                  <PageBlocks blocks={blocks as any} />
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
