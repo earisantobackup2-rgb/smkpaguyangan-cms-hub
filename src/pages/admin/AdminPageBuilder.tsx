@@ -9,7 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { ArrowLeft, ArrowDown, ArrowUp, Trash2, Plus, Image as ImageIcon, Heading1, Type, Minus, Link2, Upload, Eye } from "lucide-react";
+import { ArrowLeft, ArrowDown, ArrowUp, Trash2, Plus, Image as ImageIcon, Heading1, Type, Minus, Link2, Upload, Eye, Monitor, Tablet, Smartphone } from "lucide-react";
+import PageBlocks from "@/components/public/PageBlocks";
 
 type Block =
   | { id: string; type: "heading"; text: string; level: 1 | 2 | 3 }
@@ -38,6 +39,8 @@ export default function AdminPageBuilder() {
   const [menuParentId, setMenuParentId] = useState<string>("none");
   const [menuItemId, setMenuItemId] = useState<string | null>(null);
   const [menuOpenNewTab, setMenuOpenNewTab] = useState(false);
+  const [previewDevice, setPreviewDevice] = useState<"desktop" | "tablet" | "mobile">("desktop");
+  const [showPreview, setShowPreview] = useState(true);
 
   const { data: page } = useQuery({
     queryKey: ["admin-page", id],
@@ -120,66 +123,17 @@ export default function AdminPageBuilder() {
     });
   };
 
-  const compressImage = async (file: File, maxBytes: number = 1 * 1024 * 1024): Promise<File> => {
-    if (file.size <= maxBytes) return file;
-
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      const url = URL.createObjectURL(file);
-      img.onload = () => {
-        URL.revokeObjectURL(url);
-        let { width, height } = img;
-        const maxDim = 1920;
-        if (width > maxDim || height > maxDim) {
-          if (width > height) { height = Math.round(height * maxDim / width); width = maxDim; }
-          else { width = Math.round(width * maxDim / height); height = maxDim; }
-        }
-
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) { reject(new Error("Canvas tidak tersedia")); return; }
-        ctx.drawImage(img, 0, 0, width, height);
-
-        const mime = file.type === "image/png" ? "image/png" : "image/jpeg";
-        let quality = 0.92;
-        const attempt = (): void => {
-          canvas.toBlob(
-            (blob) => {
-              if (!blob) { reject(new Error("Gagal mengompres gambar")); return; }
-              if (blob.size <= maxBytes || quality <= 0.3) {
-                const compressed = new File([blob], file.name, { type: mime, lastModified: Date.now() });
-                resolve(compressed);
-              } else {
-                quality -= 0.1;
-                attempt();
-              }
-            },
-            mime,
-            quality
-          );
-        };
-        attempt();
-      };
-      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Gagal memuat gambar")); };
-      img.src = url;
-    });
-  };
-
   const uploadImage = async (bid: string, file: File) => {
     if (!file.type.startsWith("image/")) { toast.error("File harus berupa gambar"); return; }
-
+    if (file.size > 1 * 1024 * 1024) {
+      toast.error(`Ukuran gambar maksimal 1MB. File Anda ${(file.size / 1024 / 1024).toFixed(2)}MB. Silakan kompres terlebih dahulu.`);
+      return;
+    }
     setUploadingId(bid);
     try {
-      const target = file.size > 1 * 1024 * 1024 ? await compressImage(file) : file;
-      if (target.size > 1 * 1024 * 1024) {
-        toast.error("Gambar terlalu besar meski sudah dikompres. Coba gambar lain.");
-        return;
-      }
-      const ext = target.name.split(".").pop() || "jpg";
+      const ext = file.name.split(".").pop() || "jpg";
       const path = `pages/${Date.now()}-${uid()}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("uploads").upload(path, target, { upsert: false });
+      const { error: upErr } = await supabase.storage.from("uploads").upload(path, file, { upsert: false });
       if (upErr) throw upErr;
       const { data } = supabase.storage.from("uploads").getPublicUrl(path);
       updateBlock(bid, { url: data.publicUrl } as any);
