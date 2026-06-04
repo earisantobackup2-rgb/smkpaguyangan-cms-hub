@@ -211,9 +211,14 @@ export default function AdminPageBuilder() {
           <h1 className="text-2xl font-bold">{isNew ? "Halaman Baru" : "Edit Halaman"}</h1>
         </div>
         <div className="flex gap-2">
+          <div className="hidden md:inline-flex rounded-md border overflow-hidden">
+            <button type="button" onClick={() => setShowPreview((s) => !s)} className={`px-3 py-2 text-sm hover:bg-muted ${showPreview ? "bg-muted" : ""}`} title="Tampilkan/Sembunyikan Preview">
+              <Eye className="h-4 w-4" />
+            </button>
+          </div>
           {!isNew && slug && (
             <a href={`/halaman/${slug}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm hover:bg-muted">
-              <Eye className="h-4 w-4" /> Pratinjau
+              <Eye className="h-4 w-4" /> Buka Tab
             </a>
           )}
           <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
@@ -222,7 +227,7 @@ export default function AdminPageBuilder() {
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+      <div className={`grid gap-6 ${showPreview ? "xl:grid-cols-[1fr_minmax(360px,640px)]" : "lg:grid-cols-[1fr_320px]"}`}>
         <div className="space-y-4">
           <div className="rounded-xl bg-card shadow-card p-5 space-y-3">
             <div>
