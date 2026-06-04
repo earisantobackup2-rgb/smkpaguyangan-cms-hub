@@ -9,7 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { ArrowLeft, ArrowDown, ArrowUp, Trash2, Plus, Image as ImageIcon, Heading1, Type, Minus, Link2, Upload, Eye } from "lucide-react";
+import { ArrowLeft, ArrowDown, ArrowUp, Trash2, Plus, Image as ImageIcon, Heading1, Type, Minus, Link2, Upload, Eye, Monitor, Tablet, Smartphone } from "lucide-react";
+import PageBlocks from "@/components/public/PageBlocks";
 
 type Block =
   | { id: string; type: "heading"; text: string; level: 1 | 2 | 3 }
@@ -38,6 +39,8 @@ export default function AdminPageBuilder() {
   const [menuParentId, setMenuParentId] = useState<string>("none");
   const [menuItemId, setMenuItemId] = useState<string | null>(null);
   const [menuOpenNewTab, setMenuOpenNewTab] = useState(false);
+  const [previewDevice, setPreviewDevice] = useState<"desktop" | "tablet" | "mobile">("desktop");
+  const [showPreview, setShowPreview] = useState(true);
 
   const { data: page } = useQuery({
     queryKey: ["admin-page", id],
@@ -120,66 +123,17 @@ export default function AdminPageBuilder() {
     });
   };
 
-  const compressImage = async (file: File, maxBytes: number = 1 * 1024 * 1024): Promise<File> => {
-    if (file.size <= maxBytes) return file;
-
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      const url = URL.createObjectURL(file);
-      img.onload = () => {
-        URL.revokeObjectURL(url);
-        let { width, height } = img;
-        const maxDim = 1920;
-        if (width > maxDim || height > maxDim) {
-          if (width > height) { height = Math.round(height * maxDim / width); width = maxDim; }
-          else { width = Math.round(width * maxDim / height); height = maxDim; }
-        }
-
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) { reject(new Error("Canvas tidak tersedia")); return; }
-        ctx.drawImage(img, 0, 0, width, height);
-
-        const mime = file.type === "image/png" ? "image/png" : "image/jpeg";
-        let quality = 0.92;
-        const attempt = (): void => {
-          canvas.toBlob(
-            (blob) => {
-              if (!blob) { reject(new Error("Gagal mengompres gambar")); return; }
-              if (blob.size <= maxBytes || quality <= 0.3) {
-                const compressed = new File([blob], file.name, { type: mime, lastModified: Date.now() });
-                resolve(compressed);
-              } else {
-                quality -= 0.1;
-                attempt();
-              }
-            },
-            mime,
-            quality
-          );
-        };
-        attempt();
-      };
-      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Gagal memuat gambar")); };
-      img.src = url;
-    });
-  };
-
   const uploadImage = async (bid: string, file: File) => {
     if (!file.type.startsWith("image/")) { toast.error("File harus berupa gambar"); return; }
-
+    if (file.size > 1 * 1024 * 1024) {
+      toast.error(`Ukuran gambar maksimal 1MB. File Anda ${(file.size / 1024 / 1024).toFixed(2)}MB. Silakan kompres terlebih dahulu.`);
+      return;
+    }
     setUploadingId(bid);
     try {
-      const target = file.size > 1 * 1024 * 1024 ? await compressImage(file) : file;
-      if (target.size > 1 * 1024 * 1024) {
-        toast.error("Gambar terlalu besar meski sudah dikompres. Coba gambar lain.");
-        return;
-      }
-      const ext = target.name.split(".").pop() || "jpg";
+      const ext = file.name.split(".").pop() || "jpg";
       const path = `pages/${Date.now()}-${uid()}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("uploads").upload(path, target, { upsert: false });
+      const { error: upErr } = await supabase.storage.from("uploads").upload(path, file, { upsert: false });
       if (upErr) throw upErr;
       const { data } = supabase.storage.from("uploads").getPublicUrl(path);
       updateBlock(bid, { url: data.publicUrl } as any);
@@ -257,9 +211,14 @@ export default function AdminPageBuilder() {
           <h1 className="text-2xl font-bold">{isNew ? "Halaman Baru" : "Edit Halaman"}</h1>
         </div>
         <div className="flex gap-2">
+          <div className="hidden md:inline-flex rounded-md border overflow-hidden">
+            <button type="button" onClick={() => setShowPreview((s) => !s)} className={`px-3 py-2 text-sm hover:bg-muted ${showPreview ? "bg-muted" : ""}`} title="Tampilkan/Sembunyikan Preview">
+              <Eye className="h-4 w-4" />
+            </button>
+          </div>
           {!isNew && slug && (
             <a href={`/halaman/${slug}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm hover:bg-muted">
-              <Eye className="h-4 w-4" /> Pratinjau
+              <Eye className="h-4 w-4" /> Buka Tab
             </a>
           )}
           <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
@@ -437,12 +396,55 @@ export default function AdminPageBuilder() {
             <p className="font-semibold text-foreground mb-1">Tips</p>
             <ul className="list-disc pl-4 space-y-1">
               <li>Posisi <b>Kiri/Kanan</b> membuat teks membungkus gambar.</li>
-              <li>Ukuran gambar maks 1MB, otomatis dikompres jika melebihi.</li>
+              <li>Ukuran gambar maks <b>1MB</b>. Kompres dulu jika lebih besar.</li>
               <li>URL halaman dapat ditambahkan ke navigasi di menu Website.</li>
             </ul>
           </div>
         </aside>
       </div>
+
+      {showPreview && (
+        <div className="mt-8 rounded-xl bg-card shadow-card overflow-hidden">
+          <div className="flex items-center justify-between gap-3 px-5 py-3 border-b bg-muted/40 flex-wrap">
+            <div className="flex items-center gap-2">
+              <Eye className="h-4 w-4 text-primary" />
+              <h2 className="font-semibold text-sm">Live Preview</h2>
+              <span className="text-xs text-muted-foreground">(tampilan publik)</span>
+            </div>
+            <div className="inline-flex rounded-md border bg-background overflow-hidden">
+              <button type="button" onClick={() => setPreviewDevice("desktop")} className={`px-3 py-1.5 text-xs inline-flex items-center gap-1 ${previewDevice === "desktop" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>
+                <Monitor className="h-3.5 w-3.5" /> Desktop
+              </button>
+              <button type="button" onClick={() => setPreviewDevice("tablet")} className={`px-3 py-1.5 text-xs inline-flex items-center gap-1 border-l ${previewDevice === "tablet" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>
+                <Tablet className="h-3.5 w-3.5" /> Tablet
+              </button>
+              <button type="button" onClick={() => setPreviewDevice("mobile")} className={`px-3 py-1.5 text-xs inline-flex items-center gap-1 border-l ${previewDevice === "mobile" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>
+                <Smartphone className="h-3.5 w-3.5" /> Mobile
+              </button>
+            </div>
+          </div>
+          <div className="bg-muted/30 p-4 overflow-auto">
+            <div
+              className="mx-auto bg-background border rounded-lg shadow-sm transition-all duration-300 overflow-hidden"
+              style={{
+                width: previewDevice === "desktop" ? "100%" : previewDevice === "tablet" ? "768px" : "390px",
+                maxWidth: "100%",
+              }}
+            >
+              <div className="px-6 py-6 sm:px-8 sm:py-8">
+                <h1 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-2">{title || "Judul Halaman"}</h1>
+                {metaDescription && <p className="text-sm text-muted-foreground mb-4">{metaDescription}</p>}
+                <hr className="mb-4 border-border" />
+                {blocks.length === 0 ? (
+                  <p className="text-sm text-muted-foreground italic">Belum ada konten. Tambah blok di editor untuk melihat pratinjau.</p>
+                ) : (
+                  <PageBlocks blocks={blocks as any} />
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
