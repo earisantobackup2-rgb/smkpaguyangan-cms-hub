@@ -1,6 +1,6 @@
 import { Joyride, STATUS, type EventData, type Step } from "react-joyride";
 
-const STORAGE_KEY = "admin_tour_completed_v1";
+const STORAGE_KEY = "admin_tour_completed_v2";
 
 const steps: Step[] = [
   {
@@ -16,18 +16,18 @@ const steps: Step[] = [
   { target: '[data-tour="nav-/admin/berita"]', title: "Berita & Pengumuman", content: "Publikasikan berita, artikel, dan pengumuman sekolah.", placement: "right" },
   { target: '[data-tour="nav-/admin/prestasi"]', title: "Prestasi", content: "Catat prestasi siswa dan sekolah lengkap dengan foto & detail.", placement: "right" },
   { target: '[data-tour="nav-/admin/kerjasama"]', title: "Kerjasama Industri", content: "Daftar mitra MOU, PKL, dan kerjasama industri.", placement: "right" },
-  { target: '[data-tour="nav-/admin/halaman"]', title: "Halaman Statis", content: "Edit halaman seperti Visi, Misi, Sejarah, Struktur Organisasi.", placement: "right" },
+  { target: '[data-tour="nav-/admin/halaman"]', title: "Page Builder", content: "Buat & edit halaman (Visi, Misi, Sejarah, dll) dengan blok Judul/Teks/Gambar/Tombol. Mendukung live preview Desktop/Tablet/Mobile, upload gambar maks 1MB, dan integrasi otomatis ke Menu Navigasi.", placement: "right" },
   { target: '[data-tour="nav-/admin/galeri"]', title: "Galeri Foto", content: "Kelola album foto kegiatan sekolah dengan multi-upload.", placement: "right" },
   { target: '[data-tour="nav-/admin/sekolah"]', title: "Data Sekolah", content: "Identitas sekolah: NPSN, alamat, kontak, sosial media, jam operasional.", placement: "right" },
-  { target: '[data-tour="nav-/admin/menu"]', title: "Menu Website", content: "Atur navigasi utama (navbar) website publik.", placement: "right" },
-  { target: '[data-tour="nav-/admin/sections"]', title: "Section Homepage", content: "Susun urutan & aktifkan/nonaktifkan section di beranda.", placement: "right" },
+  { target: '[data-tour="nav-/admin/menu"]', title: "Menu Builder", content: "Atur navigasi navbar & footer publik, lengkap dengan sub-menu (parent), urutan, dan opsi buka di tab baru.", placement: "right" },
+  { target: '[data-tour="nav-/admin/sections"]', title: "Section Builder Homepage", content: "Susun urutan, aktifkan/nonaktifkan, dan kustomisasi section beranda secara dinamis.", placement: "right" },
   { target: '[data-tour="nav-/admin/pesan"]', title: "Pesan Masuk", content: "Pesan dari form kontak. Badge merah = pesan belum dibaca.", placement: "right" },
   { target: '[data-tour="nav-/admin/chatbot"]', title: "Chatbot AI – Arina", content: "Atur tampilan, knowledge base, kategori, sumber URL & crawl untuk Arina.", placement: "right" },
   { target: '[data-tour="nav-/admin/users"]', title: "Kelola Pengguna", content: "Tambah / nonaktifkan akun admin lain.", placement: "right" },
   {
     target: '[data-tour="tour-button"]',
     title: "Selesai 🎉",
-    content: "Tour bisa dibuka kembali kapan saja lewat tombol Bantuan di sidebar. Selamat berkarya!",
+    content: "Tour bisa dibuka kembali kapan saja lewat tombol Bantuan di sidebar. Tip: di Page Builder, klik tombol mata untuk live preview Desktop/Tablet/Mobile. Selamat berkarya!",
     placement: "right",
   },
 ];
